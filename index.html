@@ -13,18 +13,18 @@
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
      
-    <style>
-        body {
+     <style>
+         body {
             padding: 0;
             margin: 0;
-        }
-        
+         }
+         
         #map { 
             height: 100vh;
             width: 100%; 
             background-color: #333;
         }
-    </style>
+     </style>
 </head>
 <body>
 
@@ -42,67 +42,22 @@
         maxBoundsViscosity: 1.0
     });
 
-    // 1. Ana Haritayı Ekle
     var imageUrl = 'resimler/Harita.png';
     var image = L.imageOverlay(imageUrl, bounds).addTo(map);
 
     map.setView([h / 2, w / 2], -1.25);
 
-    // 2. Kullanılacak İkon Bilgileri
-    var iconUrl = 'resimler/Isaret2.png';
-    var iconGenislik = 128; // İkonun piksel genişliği
-    var iconYukseklik = 128; // İkonun piksel yüksekliği
+    var Isaret = L.icon({
+        iconUrl: 'resimler/Isaret2.png', // Başka bir ikon resmi (örnek)
+        iconSize: [128, 128],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
 
-    // --- "Haritanın Merkezi" İkonu (Yöntem 2: L.imageOverlay) ---
-    
-    // Piksel koordinatları (Merkez)
-    var centerPikselY = h / 2; // 1024
-    var centerPikselX = w / 2; // 1024
+    var centerMarker = L.marker([h / 2, w / 2], {icon: Isaret}).addTo(map);
+    centerMarker.bindPopup("Haritanın Merkezi");
 
-    // Leaflet koordinatlarına çevir (Y eksenini ters çevir)
-    // (Piksel koordinatını ikonun 'alt-ortası' kabul ediyoruz)
-    var centerY_bottom = h - centerPikselY;
-    var centerX_center = centerPikselX;
-
-    // Köşe koordinatlarını hesapla
-    var centerY_top = centerY_bottom + iconYukseklik;
-    var centerX_left = centerX_center - (iconGenislik / 2);
-    var centerX_right = centerX_center + (iconGenislik / 2);
-
-    // Sınırları oluştur: [[güney, batı], [kuzey, doğu]]
-    var centerBounds = [[centerY_bottom, centerX_left], [centerY_top, centerX_right]];
-
-    // İkonu haritaya 'imageOverlay' olarak ekle
-    var centerIcon = L.imageOverlay(iconUrl, centerBounds, {
-        interactive: true // Tıklanabilir yap
-    }).addTo(map);
-
-    centerIcon.bindPopup("Haritanın Merkezi");
-
-
-    // --- "Kuzeybatı Kalesi" İkonu (Yöntem 2: L.imageOverlay) ---
-
-    // Piksel koordinatları (Kuzeybatı Kalesi)
-    var castlePikselY = 1700;
-    var castlePikselX = 300;
-
-    // Leaflet koordinatlarına çevir (Y eksenini ters çevir)
-    var castleY_bottom = h - castlePikselY;
-    var castleX_center = castlePikselX;
-
-    // Köşe koordinatlarını hesapla
-    var castleY_top = castleY_bottom + iconYukseklik;
-    var castleX_left = castleX_center - (iconGenislik / 2);
-    var castleX_right = castleX_center + (iconGenislik / 2);
-
-    // Sınırları oluştur
-    var castleBounds = [[castleY_bottom, castleX_left], [castleY_top, castleX_right]];
-
-    // İkonu haritaya 'imageOverlay' olarak ekle
-    var northWestLocation = L.imageOverlay(iconUrl, castleBounds, {
-        interactive: true
-    }).addTo(map);
-
+    var northWestLocation = L.marker([1700, 300], {icon: Isaret}).addTo(map);
     northWestLocation.bindPopup("Kuzeybatı Kalesi");
 
 </script>

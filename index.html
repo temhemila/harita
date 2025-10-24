@@ -54,11 +54,35 @@
             border-radius: 4px; /* Resim köşelerini yumuşat */
             margin-top: 5px;
         }
+
+        /* --- YENİ EKLENEN SLIDER CSS'İ --- */
+        #slider-container {
+            position: absolute; /* Haritanın üzerine gelsin */
+            bottom: 40px;       /* Alttan boşluk */
+            left: 50%;          /* Yatayda ortala */
+            transform: translateX(-50%); /* Tam ortalamak için */
+            z-index: 1000;      /* Diğer her şeyin üzerinde (popup'lar hariç) */
+            background: rgba(255, 255, 255, 0.8); /* Hafif şeffaf arkaplan */
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        #map-slider {
+            width: 300px; /* Slider genişliği */
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
 
 <div id="map"></div>
+
+<div id="slider-container">
+    <input type="range" id="map-slider" min="0" max="4" value="0" step="1">
+</div>
+
 
 <script>
     var w = 2048;
@@ -72,6 +96,7 @@
         maxBoundsViscosity: 1.0
     });
 
+    // Ana harita katmanını 'image' değişkeninde saklıyoruz
     var imageUrl = 'resimler/Harita.png';
     var image = L.imageOverlay(imageUrl, bounds).addTo(map);
 
@@ -86,23 +111,20 @@
 
     // --- POPUP İÇERİKLERİ ---
     
-var centerContent = "<h3>HYDİAH TOPRAKLARI</h3>" +
+    var centerContent = "<h3>HYDİAH TOPRAKLARI</h3>" +
                         "<p>Hydiah ırkından Istayu halkının yuvası olan bu bölge... " +
                         "<a href='https://shaded-car-ffb.notion.site/HYD-AH-TOPRAKLARI-296864b1a4e080429d65c061e98c7a66?source=copy_link'>Devamı</a>" +
                         "</p>" +
                         "<img src='resimler/Hydiah.png' alt='Sissiz Alan Haritası'>";
     
     var centerMarker = L.marker([1365, 458], {icon: Isaret});
-    // İçeriği ve CSS sınıfını popup'a bağla
     centerMarker.bindPopup(centerContent, { className: 'custom-popup' });
 
-    // "Sissiz Alan" için içerik
     var kaleContent = "<h3>Sissiz Alan</h3>" +
                       "<p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanyası kadardır.</p>" +
                       "<img src='resimler/SAHarita.png' alt='Sissiz Alan Haritası'>"; 
 
     var northWestLocation = L.marker([1098, 659], {icon: Isaret});
-    // İçeriği ve CSS sınıfını popup'a bağla
     northWestLocation.bindPopup(kaleContent, { className: 'custom-popup' });
 
 
@@ -124,8 +146,46 @@ var centerContent = "<h3>HYDİAH TOPRAKLARI</h3>" +
 
     L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
 
+    // Konumlar varsayılan olarak açık başlasın
     locationsLayer.addTo(map);
     
+    
+    // --- YENİ EKLENEN SLIDER KODU ---
+    
+    // Değişecek harita resimlerinin listesi
+    // index 0, slider'ın 'value="0"' değerine karşılık gelir
+    var mapImages = [
+        'resimler/Harita.png',  // index 0 (Orijinal harita)
+        'resimler/THarita1.png', // index 1
+        'resimler/THarita2.png', // index 2
+        'resimler/THarita3.png', // index 3
+        'resimler/THarita4.png'  // index 4
+    ];
+
+    // Slider HTML elementini seç
+    var slider = document.getElementById('map-slider');
+
+    // Slider her hareket ettirildiğinde (değer değiştiğinde) bu fonksiyonu çalıştır
+    // 'input' olayı, sürükleme sırasında anlık olarak tetiklenir
+    slider.addEventListener('input', function() {
+        
+        // 1. Slider'ın yeni değerini (sayı olarak) al (0, 1, 2, 3 veya 4)
+        var newIndex = parseInt(this.value, 10);
+        
+        // 2. Diziden ilgili yeni harita URL'sini al
+        var newImageUrl = mapImages[newIndex];
+        
+        // 3. Ana harita katmanının (L.imageOverlay) URL'sini değiştir
+        // 'image' değişkeni kodun başında tanımlanmıştı
+        image.setUrl(newImageUrl);
+        
+        // 4. İsteğiniz üzerine, slider hareket ettiğinde
+        //    'Konumlar' ve 'Sis' katmanlarını haritadan kaldır.
+        //    Bu işlem, katman kontrolündeki (L.control.layers) kutucukların işaretini de kaldırır.
+        map.removeLayer(locationsLayer);
+        map.removeLayer(sisLayer);
+    });
+
 </script>
 
 </body>

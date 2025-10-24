@@ -214,23 +214,27 @@
     var kaleContent = "<h3>Sissiz Alan</h3><p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanyası kadardır.</p><img src='resimler/SAHarita.png' alt='...'>"; 
     var northWestLocation = L.marker([1098, 659], {icon: Isaret}).bindPopup(kaleContent, { className: 'custom-popup' });
     
-    // --- MARKER: LOBİN BÖLGESİ (Önceki Ekleme) ---
+    // --- MARKER: LOBİN BÖLGESİ ---
     var lobinContent = "<h3>LOBİN BÖLGESİ</h3><p>İnsanın atası olan Lobino kemir-genine ev sahipliği yapar. Tektonik... <a href='...'>Devamı</a></p><img src='resimler/Lobin.png' alt='Lobino Kemirgeni'>";
     var lobinLocation = L.marker([1558, 1650], {icon: Isaret}).bindPopup(lobinContent, { className: 'custom-popup' }); 
     // ------------------------------------
     
-    // --- YENİ MARKER: SIRAKADİ (YOKT) BÖLGESİ ---
+    // --- MARKER: SIRAKADİ (YOKT) BÖLGESİ ---
     var yoktContent = "<h3>SIRAKADİ BÖLGESİ</h3><p>Syrrana Savaşı'ndan geride kalmış bir savaş alanının kalıntıla- <a href='...'>Devamı</a></p><img src='resimler/Yokt.png' alt='Syrrana Savaşı Alanı'>";
-    var yoktLocation = L.marker([1198, 1019], {icon: Isaret}).bindPopup(yoktContent, { className: 'custom-popup' }); // Y:1198 (2048-850), X:1019
+    var yoktLocation = L.marker([1198, 1019], {icon: Isaret}).bindPopup(yoktContent, { className: 'custom-popup' }); 
     // ---------------------------------------------
-
+    
+    // --- YENİ MARKER: KARASİNAEK BÖLGESİ ---
+    var karasinaekContent = "<h3>KARASİNAEK BÖLGESİ</h3><p>Sivri kulaklı Haupi halkının yuvası olan bu bölge... <a href='...'>Devamı</a></p><img src='resimler/Kansinaek.png' alt='Karasinaek Bölgesi'>";
+    var karasinaekLocation = L.marker([791, 1077], {icon: Isaret}).bindPopup(karasinaekContent, { className: 'custom-popup' }); // Y:791 (2048-1257), X:1077
+    // ------------------------------------------
 
     var sisUrl = 'resimler/Bulutlar.png';
     var sisBounds = [[0, 0], [h, w]]; 
     var sisLayer = L.imageOverlay(sisUrl, sisBounds, { opacity: 0.8, interactive: false });
     
     // locationsLayer'a yeni markerlar dahil edildi
-    var locationsLayer = L.layerGroup([centerMarker, northWestLocation, lobinLocation, yoktLocation]); // <-- Burası güncellendi
+    var locationsLayer = L.layerGroup([centerMarker, northWestLocation, lobinLocation, yoktLocation, karasinaekLocation]); // <-- Burası güncellendi
 
     // "Toshokan Medeniyetleri" için boş bir katman
     var toshokanLayer = L.layerGroup();

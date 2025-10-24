@@ -86,12 +86,11 @@
 
     // --- POPUP İÇERİKLERİ ---
     
-    // Merkez marker için içerik
-    // DÜZELTME: <p> etiketinden sonraki fazladan " tırnağı kaldırdım
-    var centerContent = "<h3>HYDİAH TOPRAKLARI</h3>" +
-                        "<p>Hydiah ırkından Istayu halkının yuvası olan bu bölge, kayalık dağlarla çevrili bir havzada yer alan ve yakındaki kum tepeleri tarafından filtrelenen güzel Hydiah Gölü ile tanınır. Bu topraklards eskiden küçük bir ülke vardı; ancak Maske İmparatorluğu'nun çökmesi sırasında Jagwa bu ülkeyi istila etti ve buradaki halk ile karı-şarak Hyron halkını oluşturdu. Hydiah kimliğini koruyanlar ise hayatta kalmak için dağılmak zorunda kaldılar. Halkın bir gün bu topraklara dönme arzusuna Hydiah türkülerinde rastlanabilir.</p>" +
-                        // DÜZELTME: Bir önceki satırın sonundaki ; (noktalı virgül) işaretini + (artı) ile değiştirdim
-                        "<img src='resimler/Hydiah.png' alt='Sissiz Alan Haritası'>"; 
+var centerContent = "<h3>HYDİAH TOPRAKLARI</h3>" +
+                        "<p>Hydiah ırkından Istayu halkının yuvası olan bu bölge, kayalık dağlarla çevrili bir havzada yer alır ve yakındaki kum tepeleri tarafından filtrelenen güzel Hydiah Gölü ile tanınır... " +
+                        "<a href='https://shaded-car-ffb.notion.site/HYD-AH-TOPRAKLARI-296864b1a4e080429d65c061e98c7a66?source=copy_link'>Devamı</a>" +
+                        "</p>" +
+                        "<img src='resimler/Hydiah.png' alt='Sissiz Alan Haritası'>";
     
     var centerMarker = L.marker([1365, 458], {icon: Isaret});
     // İçeriği ve CSS sınıfını popup'a bağla

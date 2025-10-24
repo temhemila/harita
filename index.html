@@ -95,11 +95,11 @@
 <div id="map"></div>
 
 <div id="button-container">
-    <button data-map-index="0" id="btn-map-0">Ana Harita</button>
-    <button data-map-index="1" id="btn-map-1">T. Harita 1</button>
-    <button data-map-index="2" id="btn-map-2">T. Harita 2</button>
-    <button data-map-index="3" id="btn-map-3">T. Harita 3</button>
-    <button data-map-index="4" id="btn-map-4">T. Harita 4</button>
+    <button data-map-index="0" id="btn-map-0" title="Standart coğrafya haritası.">Ana Harita</button>
+    <button data-map-index="1" id="btn-map-1" title="Hikâyenin geçtiği yer, dumanlar içindeki bu dünyadır. Büyüklüğü Almanya kadardır.">1</button>
+    <button data-map-index="2" id="btn-map-2" title="Şu anda tamamen dumanın altında kalmış durumdadır.">2</button>
+    <button data-map-index="3" id="btn-map-3" title="Hikâyenin geçtiği yerin batısında, büyük kulak memelerine sahip bir halk olan Tana kabilesinin (Tana soyunun) yurdu bulunur. Burada kıtanın altın çağını kurmuşlardır.">3</button>
+    <button data-map-index="4" id="btn-map-4" title="Görkemli (en parlak) dönemlerindeki toprakları / en geniş sınırları.">4</button>
 </div>
 
 
@@ -124,7 +124,7 @@
         'resimler/THarita4.png'  // index 4
     ];
     
-    // YENİ: Harita katmanlarını tutacak dizi ve o anki aktif harita
+    // Harita katmanlarını tutacak dizi ve o anki aktif harita
     var mapLayers = [];
     var currentActiveMap = null;
 
@@ -141,8 +141,6 @@
             layer.addTo(map);
             currentActiveMap = layer;
         } 
-        // DİĞER HARİTALAR HARİTAYA EKLENMEZ, SADECE ARKA PLANDA TUTULUR.
-        // Tarayıcı bu noktada tüm resimleri indirmeye başlar (ön yükleme).
     });
 
     map.setView([h / 2, w / 2], -1.25);
@@ -187,26 +185,23 @@
     var konumlarInput = inputs[0]; 
     var sisInput = inputs[1];      
 
-    // YENİ HARİTA DEĞİŞTİRME FONKSİYONU (ANLIK ÇALIŞIR)
+    // HARİTA DEĞİŞTİRME FONKSİYONU
     function switchMap(index) {
         var newLayer = mapLayers[index];
         
-        // Eğer zaten aktifse bir şey yapma
         if (newLayer === currentActiveMap) {
             return;
         }
         
-        // Önceki aktif haritayı haritadan kaldır (EĞER VARSA)
         if (currentActiveMap) {
             map.removeLayer(currentActiveMap);
         }
         
-        // Yeni haritayı ekle (bu anlık olacaktır, çünkü dosya zaten indirilmiştir)
         newLayer.addTo(map);
         currentActiveMap = newLayer;
     }
 
-    // Butonlara tek bir olay dinleyicisi ekleyerek işi basitleştir
+    // Butonlara tek bir olay dinleyicisi ekle
     buttonContainer.addEventListener('click', function(e) {
         if (e.target.tagName === 'BUTTON') {
             var index = parseInt(e.target.dataset.mapIndex, 10);
@@ -220,7 +215,7 @@
         if (e.layer === toshokanLayer) {
             buttonContainer.style.display = 'block';
             
-            // Diğer katmanları haritadan kaldır ve tikleri kaldır (Düzeltme yapılmıştı)
+            // Diğer katmanları haritadan kaldır ve tikleri kaldır 
             map.removeLayer(locationsLayer);
             map.removeLayer(sisLayer);
             konumlarInput.checked = false;

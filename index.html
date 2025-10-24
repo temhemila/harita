@@ -155,11 +155,11 @@
 
     // Harita resimlerinin listesi
     var mapImages = [
-        'resimler/Harita.png',   // index 0
+        'resimler/Harita.png', 	// index 0
         'resimler/THarita1.png', // index 1
         'resimler/THarita2.png', // index 2
         'resimler/THarita3.png', // index 3
-        'resimler/THarita4.png'  // index 4
+        'resimler/THarita4.png'	// index 4
     ];
     
     // Harita Açıklama Metinleri
@@ -208,16 +208,23 @@
         popupAnchor: [0, -32]
     });
 
-    // --- POPUP İÇERİKLERİ VE KONUMLAR (DEĞİŞMEDİ) ---
+    // --- POPUP İÇERİKLERİ VE KONUMLAR ---
     var centerContent = "<h3>HYDİAH TOPRAKLARI</h3><p>Hydiah ırkından Istayu halkının yuvası olan bu bölge... <a href='...'>Devamı</a></p><img src='resimler/Hydiah.png' alt='...'>";
     var centerMarker = L.marker([1365, 458], {icon: Isaret}).bindPopup(centerContent, { className: 'custom-popup' });
     var kaleContent = "<h3>Sissiz Alan</h3><p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanyası kadardır.</p><img src='resimler/SAHarita.png' alt='...'>"; 
     var northWestLocation = L.marker([1098, 659], {icon: Isaret}).bindPopup(kaleContent, { className: 'custom-popup' });
     
+    // --- YENİ MARKER: LOBİN BÖLGESİ ---
+    var lobinContent = "<h3>LOBİN BÖLGESİ</h3><p>İnsanın atası olan Lobino kemir-genine ev sahipliği yapar. Tektonik... <a href='...'>Devamı</a></p><img src='resimler/Lobin.png' alt='Lobino Kemirgeni'>";
+    var lobinLocation = L.marker([486, 1650], {icon: Isaret}).bindPopup(lobinContent, { className: 'custom-popup' }); // Y:486, X:1650
+    // ------------------------------------
+
     var sisUrl = 'resimler/Bulutlar.png';
     var sisBounds = [[0, 0], [h, w]]; 
     var sisLayer = L.imageOverlay(sisUrl, sisBounds, { opacity: 0.8, interactive: false });
-    var locationsLayer = L.layerGroup([centerMarker, northWestLocation]);
+    
+    // locationsLayer'a yeni marker dahil edildi
+    var locationsLayer = L.layerGroup([centerMarker, northWestLocation, lobinLocation]); 
 
     // "Toshokan Medeniyetleri" için boş bir katman
     var toshokanLayer = L.layerGroup();
@@ -239,7 +246,7 @@
     var inputs = controlContainer.getElementsByTagName('input');
     
     var konumlarInput = inputs[0]; 
-    var sisInput = inputs[1];      
+    var sisInput = inputs[1];     
 
     // HARİTA DEĞİŞTİRME FONKSİYONU (Açıklamayı da günceller)
     function switchMap(index) {

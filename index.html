@@ -25,32 +25,36 @@
             background-color: #333;
         }
 
-        .sabit-popup {
-            position: fixed; 
-            top: 20px;       
-            right: 20px;     
-            width: 300px;    
+        .info-kutu {
+            padding: 10px 15px;
             background: white;
-            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            z-index: 1001; 
+            width: 300px;
         }
-        
-        .sabit-popup .leaflet-popup-tip-container,
-        .sabit-popup .leaflet-popup-tip {
-            display: none;
+
+        .info-kutu-kapat {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 20px;
+            color: #888;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
         }
-        
-        .sabit-popup h3 {
+        .info-kutu-kapat:hover {
+            color: #000;
+        }
+
+        .info-kutu h3 {
             margin-top: 0;
         }
-        .sabit-popup img {
+        .info-kutu img {
             width: 100%;
             height: auto;
             border-radius: 4px;
         }
-
     </style>
 </head>
 <body>
@@ -81,31 +85,36 @@
         popupAnchor: [0, -32]
     });
     
-    var popup = L.popup({
-        autoPan: false,         
-        closeButton: true,      
-        className: 'sabit-popup'
-    });
+    var infoBox = L.control({position: 'topright'});
+
+    infoBox.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info-kutu');
+        this._div.style.display = 'none';
+        return this._div;
+    };
+
+    infoBox.update = function (content) {
+        this._div.innerHTML = content || '';
+        this._div.style.display = content ? 'block' : 'none';
+    };
+
+    infoBox.addTo(map);
 
     var centerMarker = L.marker([h / 2, w / 2], {icon: Isaret});
     centerMarker.on('click', function(e) {
-        var content = "<h3>Haritanın Merkezi</h3>" +
+        var content = '<a href="#" onclick="infoBox.update()" class="info-kutu-kapat">&times;</a>' +
+                      "<h3>Haritanın Merkezi</h3>" +
                       "<p>Burası haritanın (1024, 1024) koordinatıdır.</p>";
-        
-        popup.setLatLng(e.latlng); 
-        popup.setContent(content);   
-        popup.openOn(map);           
+        infoBox.update(content);
     });
 
     var northWestLocation = L.marker([1098, 659], {icon: Isaret});
     northWestLocation.on('click', function(e) {
-        var content = "<h3>Kuzeybatı Kalesi</h3>" +
+        var content = '<a href="#" onclick="infoBox.update()" class="info-kutu-kapat">&times;</a>' +
+                      "<h3>Kuzeybatı Kalesi</h3>" +
                       "<p>Bu kale, [1098, 659] koordinatlarında yer alır. Kadim bir yapıdır.</p>" +
                       "<img src='resimler/kale_resmi.png'>"; 
-        
-        popup.setLatLng(e.latlng);
-        popup.setContent(content);
-        popup.openOn(map);
+        infoBox.update(content);
     });
     
     var sisUrl = 'resimler/Bulutlar.png';

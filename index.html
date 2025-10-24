@@ -14,7 +14,7 @@
      crossorigin=""></script>
      
     <style>
-        /* ... Önceki CSS kodları (body, #map, .custom-popup, #button-container) buraya KOPYALANACAK ... */
+        /* ... Önceki CSS kodları ... */
 
         body {
             padding: 0;
@@ -87,19 +87,55 @@
         #button-container button:active {
             background: #eee;
         }
+        
+        /* --- YENİ: HARİTA BİLGİ KUTUSU CSS'İ --- */
+        #map-info {
+            position: absolute;
+            top: 10px;
+            right: 10px; /* Sağ üst köşeye sabitleme */
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.85); /* Hafif şeffaf beyaz */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            max-width: 300px;
+            font-family: sans-serif;
+            line-height: 1.4;
+            
+            /* Başlangıçta gizli */
+            display: none; 
+        }
 
+        #map-info h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        #map-info p {
+            margin: 0;
+            color: #555;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
 <div id="map"></div>
 
+<div id="map-info">
+    <h4>Harita Açıklaması</h4>
+    <p id="info-text">Aktif harita ile ilgili açıklamalar burada görüntülenecektir.</p>
+</div>
+
+
 <div id="button-container">
-    <button data-map-index="0" id="btn-map-0" title="Standart coğrafya haritası.">Ana Harita</button>
-    <button data-map-index="1" id="btn-map-1" title="Hikâyenin geçtiği yer, dumanlar içindeki bu dünyadır. Büyüklüğü Almanya kadardır.">1</button>
-    <button data-map-index="2" id="btn-map-2" title="Şu anda tamamen dumanın altında kalmış durumdadır.">2</button>
-    <button data-map-index="3" id="btn-map-3" title="Hikâyenin geçtiği yerin batısında, büyük kulak memelerine sahip bir halk olan Tana kabilesinin (Tana soyunun) yurdu bulunur. Burada kıtanın altın çağını kurmuşlardır.">3</button>
-    <button data-map-index="4" id="btn-map-4" title="Görkemli (en parlak) dönemlerindeki toprakları / en geniş sınırları.">4</button>
+    <button data-map-index="0" id="btn-map-0">Ana Harita</button>
+    <button data-map-index="1" id="btn-map-1">1</button>
+    <button data-map-index="2" id="btn-map-2">2</button>
+    <button data-map-index="3" id="btn-map-3">3</button>
+    <button data-map-index="4" id="btn-map-4">4</button>
 </div>
 
 
@@ -124,16 +160,37 @@
         'resimler/THarita4.png'  // index 4
     ];
     
-    // Harita katmanlarını tutacak dizi ve o anki aktif harita
+    // YENİ: Harita Açıklama Metinleri
+    var mapDescriptions = [
+        "Standart coğrafya haritası. Bu, dünyanın günümüzdeki genel görünümüdür.", // Ana Harita
+        "Hikâyenin geçtiği yer, dumanlar içindeki bu dünyadır. Büyüklüğü Almanya kadardır.", // Harita 1
+        "Şu anda tamamen dumanın altında kalmış durumdadır.", // Harita 2
+        "Hikâyenin geçtiği yerin batısında, büyük kulak memelerine sahip bir halk olan Tana kabilesinin (Tana soyunun) yurdu bulunur. Burada kıtanın altın çağını kurmuşlardır.", // Harita 3
+        "Görkemli (en parlak) dönemlerindeki toprakları / en geniş sınırları." // Harita 4
+    ];
+    
+    // YENİ: Harita Başlıkları (map-info kutusu için)
+    var mapTitles = [
+        "Ana Harita",
+        "Toshokan Medeniyetleri (1)",
+        "Toshokan Medeniyetleri (2)",
+        "Toshokan Medeniyetleri (3)",
+        "Toshokan Medeniyetleri (4)"
+    ];
+    
+    // YENİ: Harita katmanlarını tutacak dizi ve o anki aktif harita
     var mapLayers = [];
     var currentActiveMap = null;
 
+    // Harita Açıklama kutusu elementlerini al
+    var mapInfoContainer = document.getElementById('map-info');
+    var infoTitle = mapInfoContainer.querySelector('h4');
+    var infoText = document.getElementById('info-text');
+
+
     // --- TÜM HARİTALARI ARKA PLANDA OLUŞTUR VE İNDİR ---
     mapImages.forEach((url, index) => {
-        // Her harita için bir L.imageOverlay oluştur
         var layer = L.imageOverlay(url, bounds);
-        
-        // Bu katmanı diziye ekle
         mapLayers.push(layer);
         
         // İlk haritayı (index 0) haritaya ekleyerek görünür yap
@@ -185,23 +242,30 @@
     var konumlarInput = inputs[0]; 
     var sisInput = inputs[1];      
 
-    // HARİTA DEĞİŞTİRME FONKSİYONU
+    // YENİ HARİTA DEĞİŞTİRME FONKSİYONU (Açıklamayı da günceller)
     function switchMap(index) {
         var newLayer = mapLayers[index];
         
+        // Eğer zaten aktifse bir şey yapma
         if (newLayer === currentActiveMap) {
             return;
         }
         
+        // Önceki aktif haritayı haritadan kaldır (EĞER VARSA)
         if (currentActiveMap) {
             map.removeLayer(currentActiveMap);
         }
         
+        // Yeni haritayı ekle
         newLayer.addTo(map);
         currentActiveMap = newLayer;
+        
+        // YENİ: Açıklama kutusunu güncelle
+        infoTitle.textContent = mapTitles[index];
+        infoText.textContent = mapDescriptions[index];
     }
 
-    // Butonlara tek bir olay dinleyicisi ekle
+    // Butonlara tek bir olay dinleyicisi ekleyerek işi basitleştir
     buttonContainer.addEventListener('click', function(e) {
         if (e.target.tagName === 'BUTTON') {
             var index = parseInt(e.target.dataset.mapIndex, 10);
@@ -213,7 +277,9 @@
     // Haritaya bir katman EKLENDİĞİNDE tetiklenir
     map.on('overlayadd', function(e) {
         if (e.layer === toshokanLayer) {
+            // Butonları ve Harita Bilgi Kutusunu Göster
             buttonContainer.style.display = 'block';
+            mapInfoContainer.style.display = 'block';
             
             // Diğer katmanları haritadan kaldır ve tikleri kaldır 
             map.removeLayer(locationsLayer);
@@ -224,20 +290,30 @@
             // Seçenekleri devre dışı bırak
             konumlarInput.disabled = true;
             sisInput.disabled = true;
+            
+            // İlk tematik haritaya (index 1) geç ve bilgisini göster
+            switchMap(1); 
         }
     });
 
     // Haritadan bir katman KALDIRILDIĞINDA tetiklenir
     map.on('overlayremove', function(e) {
         if (e.layer === toshokanLayer) {
+            // Butonları ve Harita Bilgi Kutusunu Gizle
             buttonContainer.style.display = 'none';
+            mapInfoContainer.style.display = 'none';
+            
             konumlarInput.disabled = false;
             sisInput.disabled = false;
             
-            // Orijinal haritaya geri dön
+            // Orijinal haritaya geri dön (Açıklama da Ana Harita'ya dönecek)
             switchMap(0);
         }
     });
+    
+    // Sayfa yüklendiğinde Ana Harita'nın açıklamasını göster (Başlangıçta bu kısmı gizli tuttuğumuz için gerek yok, ama 
+    // isterseniz başlangıçta gösterip ilk haritanın bilgisini set edebilirsiniz.)
+    // switchMap(0); 
 
 </script>
 

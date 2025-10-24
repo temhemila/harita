@@ -57,10 +57,11 @@
             margin-top: 5px;
         }
 
-        /* --- BUTON KONTEYNERİ CSS'İ --- */
+        /* --- BUTON KONTEYNERİ CSS'İ (ALTTAN YUKARI TAŞIYORUZ) --- */
         #button-container {
             position: absolute;
-            bottom: 40px;
+            /* bottom: 40px; Bu satırı kaldırıyoruz */
+            bottom: 80px; /* Biraz yukarı çekildi */
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
@@ -88,13 +89,14 @@
             background: #eee;
         }
         
-        /* --- YENİ: HARİTA BİLGİ KUTUSU CSS'İ --- */
+        /* --- YENİ: HARİTA BİLGİ KUTUSU CSS'İ (SAĞ ALT KÖŞEYE TAŞINIYOR) --- */
         #map-info {
             position: absolute;
-            top: 10px;
-            right: 10px; /* Sağ üst köşeye sabitleme */
+            /* top: 10px; Bu satır kaldırıldı */
+            bottom: 150px; /* Butonların üzerine çıkması için konum ayarı */
+            right: 10px; 
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.85); /* Hafif şeffaf beyaz */
+            background: rgba(255, 255, 255, 0.85); 
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -160,7 +162,7 @@
         'resimler/THarita4.png'  // index 4
     ];
     
-    // YENİ: Harita Açıklama Metinleri
+    // Harita Açıklama Metinleri
     var mapDescriptions = [
         "Standart coğrafya haritası. Bu, dünyanın günümüzdeki genel görünümüdür.", // Ana Harita
         "Hikâyenin geçtiği yer, dumanlar içindeki bu dünyadır. Büyüklüğü Almanya kadardır.", // Harita 1
@@ -169,7 +171,7 @@
         "Görkemli (en parlak) dönemlerindeki toprakları / en geniş sınırları." // Harita 4
     ];
     
-    // YENİ: Harita Başlıkları (map-info kutusu için)
+    // Harita Başlıkları (map-info kutusu için)
     var mapTitles = [
         "Ana Harita",
         "Toshokan Medeniyetleri (1)",
@@ -178,11 +180,9 @@
         "Toshokan Medeniyetleri (4)"
     ];
     
-    // YENİ: Harita katmanlarını tutacak dizi ve o anki aktif harita
     var mapLayers = [];
     var currentActiveMap = null;
 
-    // Harita Açıklama kutusu elementlerini al
     var mapInfoContainer = document.getElementById('map-info');
     var infoTitle = mapInfoContainer.querySelector('h4');
     var infoText = document.getElementById('info-text');
@@ -193,7 +193,6 @@
         var layer = L.imageOverlay(url, bounds);
         mapLayers.push(layer);
         
-        // İlk haritayı (index 0) haritaya ekleyerek görünür yap
         if (index === 0) {
             layer.addTo(map);
             currentActiveMap = layer;
@@ -242,30 +241,27 @@
     var konumlarInput = inputs[0]; 
     var sisInput = inputs[1];      
 
-    // YENİ HARİTA DEĞİŞTİRME FONKSİYONU (Açıklamayı da günceller)
+    // HARİTA DEĞİŞTİRME FONKSİYONU (Açıklamayı da günceller)
     function switchMap(index) {
         var newLayer = mapLayers[index];
         
-        // Eğer zaten aktifse bir şey yapma
         if (newLayer === currentActiveMap) {
             return;
         }
         
-        // Önceki aktif haritayı haritadan kaldır (EĞER VARSA)
         if (currentActiveMap) {
             map.removeLayer(currentActiveMap);
         }
         
-        // Yeni haritayı ekle
         newLayer.addTo(map);
         currentActiveMap = newLayer;
         
-        // YENİ: Açıklama kutusunu güncelle
+        // Açıklama kutusunu güncelle
         infoTitle.textContent = mapTitles[index];
         infoText.textContent = mapDescriptions[index];
     }
 
-    // Butonlara tek bir olay dinleyicisi ekleyerek işi basitleştir
+    // Butonlara tek bir olay dinleyicisi ekle
     buttonContainer.addEventListener('click', function(e) {
         if (e.target.tagName === 'BUTTON') {
             var index = parseInt(e.target.dataset.mapIndex, 10);
@@ -306,14 +302,10 @@
             konumlarInput.disabled = false;
             sisInput.disabled = false;
             
-            // Orijinal haritaya geri dön (Açıklama da Ana Harita'ya dönecek)
+            // Orijinal haritaya geri dön 
             switchMap(0);
         }
     });
-    
-    // Sayfa yüklendiğinde Ana Harita'nın açıklamasını göster (Başlangıçta bu kısmı gizli tuttuğumuz için gerek yok, ama 
-    // isterseniz başlangıçta gösterip ilk haritanın bilgisini set edebilirsiniz.)
-    // switchMap(0); 
 
 </script>
 

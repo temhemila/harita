@@ -25,15 +25,15 @@
             background-color: #333;
         }
 
-        /* --- GÖZE GÜZEL GÖZÜKEN POPUP İÇİN YENİ CSS --- */
+        /* --- POPUP CSS --- */
         .custom-popup .leaflet-popup-content-wrapper {
-            background: #f9f9f9; /* Arkaplan rengi */
-            border-radius: 8px;  /* Kenar yumuşatma */
+            background: #f9f9f9;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         .custom-popup .leaflet-popup-content {
-            margin: 15px; /* İçerik boşluğu */
-            width: 250px; /* Popup'a sabit bir genişlik verelim */
+            margin: 15px;
+            width: 250px;
         }
         .custom-popup h3 {
             margin-top: 0;
@@ -49,28 +49,41 @@
             line-height: 1.4;
         }
         .custom-popup img {
-            width: 100%; /* Resim kutuya tam sığsın */
+            width: 100%;
             height: auto;
-            border-radius: 4px; /* Resim köşelerini yumuşat */
+            border-radius: 4px;
             margin-top: 5px;
         }
 
-        /* --- YENİ EKLENEN SLIDER CSS'İ --- */
-        #slider-container {
-            position: absolute; /* Haritanın üzerine gelsin */
-            bottom: 40px;       /* Alttan boşluk */
-            left: 50%;          /* Yatayda ortala */
-            transform: translateX(-50%); /* Tam ortalamak için */
-            z-index: 1000;      /* Diğer her şeyin üzerinde (popup'lar hariç) */
-            background: rgba(255, 255, 255, 0.8); /* Hafif şeffaf arkaplan */
-            padding: 10px 15px;
+        /* --- YENİ EKLENEN BUTON KONTEYNERİ CSS'İ --- */
+        #button-container {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            
+            /* Başlangıçta gizli */
+            display: none; 
         }
-        
-        #map-slider {
-            width: 300px; /* Slider genişliği */
+
+        #button-container button {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 10px;
             cursor: pointer;
+            margin: 0 3px;
+        }
+        #button-container button:hover {
+            background: #f4f4f4;
+        }
+        #button-container button:active {
+            background: #eee;
         }
 
     </style>
@@ -79,8 +92,12 @@
 
 <div id="map"></div>
 
-<div id="slider-container">
-    <input type="range" id="map-slider" min="0" max="4" value="0" step="1">
+<div id="button-container">
+    <button id="btn-map-0">Ana Harita</button>
+    <button id="btn-map-1">T. Harita 1</button>
+    <button id="btn-map-2">T. Harita 2</button>
+    <button id="btn-map-3">T. Harita 3</button>
+    <button id="btn-map-4">T. Harita 4</button>
 </div>
 
 
@@ -96,9 +113,17 @@
         maxBoundsViscosity: 1.0
     });
 
+    // Değişecek harita resimlerinin listesi
+    var mapImages = [
+        'resimler/Harita.png',   // index 0
+        'resimler/THarita1.png', // index 1
+        'resimler/THarita2.png', // index 2
+        'resimler/THarita3.png', // index 3
+        'resimler/THarita4.png'  // index 4
+    ];
+
     // Ana harita katmanını 'image' değişkeninde saklıyoruz
-    var imageUrl = 'resimler/Harita.png';
-    var image = L.imageOverlay(imageUrl, bounds).addTo(map);
+    var image = L.imageOverlay(mapImages[0], bounds).addTo(map);
 
     map.setView([h / 2, w / 2], -1.25);
 
@@ -139,51 +164,83 @@
     
     var locationsLayer = L.layerGroup([centerMarker, northWestLocation]);
 
+    // YENİ: "Toshokan Medeniyetleri" için boş bir katman oluşturuyoruz.
+    // Bu katmanın tek amacı, katman kontrol menüsünde bir seçenek (checkbox) olarak görünmektir.
+    var toshokanLayer = L.layerGroup();
+
     var overlayMaps = {
         "Konumlar": locationsLayer,
-        "Sisi Göster": sisLayer
+        "Sisi Göster": sisLayer,
+        "Toshokan Medeniyetleri": toshokanLayer // Yeni seçeneği ekle
     };
 
-    L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
+    // Katman kontrolünü (L.control.layers) bir değişkene atıyoruz
+    var control = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
 
     // Konumlar varsayılan olarak açık başlasın
     locationsLayer.addTo(map);
     
     
-    // --- YENİ EKLENEN SLIDER KODU ---
+    // --- YENİ EKLENEN BUTON VE KONTROL MANTIĞI ---
+
+    // HTML elementlerini al
+    var buttonContainer = document.getElementById('button-container');
+
+    // Katman kontrol menüsündeki input (checkbox) elementlerini almamız gerekiyor.
+    // L.control.layers DOM'a eklendikten sonra bu işlemi yapabiliriz.
+    var controlContainer = control.getContainer();
+    var inputs = controlContainer.getElementsByTagName('input');
     
-    // Değişecek harita resimlerinin listesi
-    // index 0, slider'ın 'value="0"' değerine karşılık gelir
-    var mapImages = [
-        'resimler/Harita.png',  // index 0 (Orijinal harita)
-        'resimler/THarita1.png', // index 1
-        'resimler/THarita2.png', // index 2
-        'resimler/THarita3.png', // index 3
-        'resimler/THarita4.png'  // index 4
-    ];
+    // overlayMaps objesindeki sıraya göre input'ları al:
+    var konumlarInput = inputs[0]; // "Konumlar" checkbox'ı
+    var sisInput = inputs[1];      // "Sisi Göster" checkbox'ı
 
-    // Slider HTML elementini seç
-    var slider = document.getElementById('map-slider');
+    // Harita değiştirme fonksiyonu
+    function setMapImage(index) {
+        image.setUrl(mapImages[index]);
+    }
 
-    // Slider her hareket ettirildiğinde (değer değiştiğinde) bu fonksiyonu çalıştır
-    // 'input' olayı, sürükleme sırasında anlık olarak tetiklenir
-    slider.addEventListener('input', function() {
+    // Butonlara tıklama olayı ekle
+    document.getElementById('btn-map-0').addEventListener('click', function() { setMapImage(0); });
+    document.getElementById('btn-map-1').addEventListener('click', function() { setMapImage(1); });
+    document.getElementById('btn-map-2').addEventListener('click', function() { setMapImage(2); });
+    document.getElementById('btn-map-3').addEventListener('click', function() { setMapImage(3); });
+    document.getElementById('btn-map-4').addEventListener('click', function() { setMapImage(4); });
+
+
+    // Haritaya bir katman EKLENDİĞİNDE tetiklenir
+    map.on('overlayadd', function(e) {
         
-        // 1. Slider'ın yeni değerini (sayı olarak) al (0, 1, 2, 3 veya 4)
-        var newIndex = parseInt(this.value, 10);
+        // Eğer eklenen katman "Toshokan Medeniyetleri" ise:
+        if (e.layer === toshokanLayer) {
+            // 1. Harita değiştirme butonlarını görünür yap
+            buttonContainer.style.display = 'block';
+            
+            // 2. Diğer katmanları (Konumlar ve Sis) haritadan kaldır
+            map.removeLayer(locationsLayer);
+            map.removeLayer(sisLayer);
+            
+            // 3. Diğer katmanların seçeneklerini (checkbox'larını) devre dışı bırak
+            konumlarInput.disabled = true;
+            sisInput.disabled = true;
+        }
+    });
+
+    // Haritadan bir katman KALDIRILDIĞINDA tetiklenir
+    map.on('overlayremove', function(e) {
         
-        // 2. Diziden ilgili yeni harita URL'sini al
-        var newImageUrl = mapImages[newIndex];
-        
-        // 3. Ana harita katmanının (L.imageOverlay) URL'sini değiştir
-        // 'image' değişkeni kodun başında tanımlanmıştı
-        image.setUrl(newImageUrl);
-        
-        // 4. İsteğiniz üzerine, slider hareket ettiğinde
-        //    'Konumlar' ve 'Sis' katmanlarını haritadan kaldır.
-        //    Bu işlem, katman kontrolündeki (L.control.layers) kutucukların işaretini de kaldırır.
-        map.removeLayer(locationsLayer);
-        map.removeLayer(sisLayer);
+        // Eğer kaldırılan katman "Toshokan Medeniyetleri" ise:
+        if (e.layer === toshokanLayer) {
+            // 1. Harita değiştirme butonlarını gizle
+            buttonContainer.style.display = 'none';
+            
+            // 2. Diğer katmanların seçeneklerini (checkbox'larını) tekrar etkinleştir
+            konumlarInput.disabled = false;
+            sisInput.disabled = false;
+            
+            // 3. Haritayı orijinal haline (Ana Harita) geri döndür
+            setMapImage(0);
+        }
     });
 
 </script>

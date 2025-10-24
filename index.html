@@ -65,6 +65,8 @@
     var w = 2048;
     var h = 2048;
     var bounds = [[0, 0], [h, w]];
+    var centerView = [h / 2, w / 2];
+    var startZoom = -1.25;
 
     var map = L.map('map', {
         crs: L.CRS.Simple,
@@ -76,7 +78,7 @@
     var imageUrl = 'resimler/Harita.png';
     var image = L.imageOverlay(imageUrl, bounds).addTo(map);
 
-    map.setView([h / 2, w / 2], -1.25);
+    map.setView(centerView, startZoom);
 
     var Isaret = L.icon({
         iconUrl: 'resimler/Isaret2.png',
@@ -90,6 +92,7 @@
     infoBox.onAdd = function (map) {
         this._div = L.DomUtil.create('div', 'info-kutu');
         this._div.style.display = 'none';
+        L.DomEvent.disableClickPropagation(this._div);
         return this._div;
     };
 
@@ -100,21 +103,36 @@
 
     infoBox.addTo(map);
 
+    function closeInfoBox() {
+        infoBox.update();
+        map.setView(centerView, startZoom);
+    }
+
+    function panToMarker(e) {
+        var infoBoxWidth = 300 + 20; 
+        var featureGroup = L.featureGroup([e.target]);
+        map.fitBounds(featureGroup.getBounds(), {
+            paddingBottomRight: [infoBoxWidth, 20]
+        });
+    }
+
     var centerMarker = L.marker([h / 2, w / 2], {icon: Isaret});
     centerMarker.on('click', function(e) {
-        var content = '<a href="#" onclick="infoBox.update()" class="info-kutu-kapat">&times;</a>' +
+        var content = '<a href="#" onclick="closeInfoBox()" class="info-kutu-kapat">&times;</a>' +
                       "<h3>Haritanın Merkezi</h3>" +
                       "<p>Burası haritanın (1024, 1024) koordinatıdır.</p>";
         infoBox.update(content);
+        panToMarker(e);
     });
 
     var northWestLocation = L.marker([1098, 659], {icon: Isaret});
     northWestLocation.on('click', function(e) {
-        var content = '<a href="#" onclick="infoBox.update()" class="info-kutu-kapat">&times;</a>' +
+        var content = '<a href="#" onclick="closeInfoBox()" class="info-kutu-kapat">&times;</a>' +
                       "<h3>Sissiz Alan</h3>" +
                       "<p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanya'sı kadardır.</p>" +
-                      "<img src='resimler/SAHarita.png'>"; 
+                      "<img src='SAHarita.png'>"; 
         infoBox.update(content);
+        panToMarker(e);
     });
     
     var sisUrl = 'resimler/Bulutlar.png';

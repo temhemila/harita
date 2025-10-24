@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Leaflet + GitHub Pages - Basit Harita</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS (CDN) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <style>
+    html, body, #map { height: 100%; margin: 0; padding: 0; }
+    #map { min-height: 400px; }
+    header { padding: 8px; font-family: Arial, sans-serif; background:#f8f8f8; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Basit Leaflet Harita</strong> — GitHub Pages üzerinde çalışır.
+  </header>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS (CDN) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    // Başlangıç koordinatları ve zoom (değiştir)
+    const lat = 41.0082; // örnek: İstanbul
+    const lng = 28.9784;
+    const zoom = 13;
+
+    // Harita oluştur
+    const map = L.map('map').setView([lat, lng], zoom);
+
+    // OpenStreetMap tile layer (kullanım şartlarına dikkat: attribution zorunlu)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Marker ve popup
+    const marker = L.marker([lat, lng]).addTo(map);
+    marker.bindPopup('<b>Merhaba!</b><br>Buraya açıklama ekleyebilirsin.').openPopup();
+
+    // Örnek: GeoJSON yüklemek istersen (bir dosyadan veya değişkenden)
+    // fetch('data/my-geojson.json').then(r=>r.json()).then(geojson=>{
+    //   L.geoJSON(geojson).addTo(map);
+    // });
+
+  </script>
+</body>
+</html>

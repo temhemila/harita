@@ -24,6 +24,33 @@
             width: 100%; 
             background-color: #333;
         }
+
+        .sabit-popup {
+            position: fixed; 
+            top: 20px;       
+            right: 20px;     
+            width: 300px;    
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 1001; 
+        }
+        
+        .sabit-popup .leaflet-popup-tip-container,
+        .sabit-popup .leaflet-popup-tip {
+            display: none;
+        }
+        
+        .sabit-popup h3 {
+            margin-top: 0;
+        }
+        .sabit-popup img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
     </style>
 </head>
 <body>
@@ -53,13 +80,34 @@
         iconAnchor: [24, 48],
         popupAnchor: [0, -32]
     });
+    
+    var popup = L.popup({
+        autoPan: false,         
+        closeButton: true,      
+        className: 'sabit-popup'
+    });
 
     var centerMarker = L.marker([h / 2, w / 2], {icon: Isaret});
-    centerMarker.bindPopup("Haritanın Merkezi");
+    centerMarker.on('click', function(e) {
+        var content = "<h3>Haritanın Merkezi</h3>" +
+                      "<p>Burası haritanın (1024, 1024) koordinatıdır.</p>";
+        
+        popup.setLatLng(e.latlng); 
+        popup.setContent(content);   
+        popup.openOn(map);           
+    });
 
     var northWestLocation = L.marker([1098, 659], {icon: Isaret});
-    northWestLocation.bindPopup("Kuzeybatı Kalesi");
-
+    northWestLocation.on('click', function(e) {
+        var content = "<h3>Kuzeybatı Kalesi</h3>" +
+                      "<p>Bu kale, [1098, 659] koordinatlarında yer alır. Kadim bir yapıdır.</p>" +
+                      "<img src='resimler/kale_resmi.png'>"; 
+        
+        popup.setLatLng(e.latlng);
+        popup.setContent(content);
+        popup.openOn(map);
+    });
+    
     var sisUrl = 'resimler/Bulutlar.png';
     var sisBounds = [[0, 0], [h, w]]; 
     var sisLayer = L.imageOverlay(sisUrl, sisBounds, {

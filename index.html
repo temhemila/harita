@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossorigin=""/>
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""/>
     
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
-     
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""></script>
+      
     <style>
         /* ... Önceki CSS kodları (body, #map, .custom-popup, #button-container) buraya KOPYALANACAK ... */
 
@@ -117,11 +117,11 @@
 
     // Harita resimlerinin listesi
     var mapImages = [
-        'resimler/Harita.png',   // index 0
+        'resimler/Harita.png', 	// index 0
         'resimler/THarita1.png', // index 1
         'resimler/THarita2.png', // index 2
         'resimler/THarita3.png', // index 3
-        'resimler/THarita4.png'  // index 4
+        'resimler/THarita4.png'	// index 4
     ];
     
     // YENİ: Harita katmanlarını tutacak dizi ve o anki aktif harita
@@ -142,7 +142,6 @@
             currentActiveMap = layer;
         } 
         // DİĞER HARİTALAR HARİTAYA EKLENMEZ, SADECE ARKA PLANDA TUTULUR.
-        // Tarayıcı bu noktada tüm resimleri indirmeye başlar (ön yükleme).
     });
 
     map.setView([h / 2, w / 2], -1.25);
@@ -184,8 +183,10 @@
     var controlContainer = control.getContainer();
     var inputs = controlContainer.getElementsByTagName('input');
     
+    // Katmanların DOM elementlerini doğru indexlerle alıyoruz
     var konumlarInput = inputs[0]; 
-    var sisInput = inputs[1];      
+    var sisInput = inputs[1];     
+    // inputs[2] ise "Toshokan Medeniyetleri" inputudur.
 
     // YENİ HARİTA DEĞİŞTİRME FONKSİYONU (ANLIK ÇALIŞIR)
     function switchMap(index) {
@@ -215,14 +216,21 @@
     });
 
 
-    // Haritaya bir katman EKLENDİĞİNDE tetiklenir
+    // Haritaya bir katman EKLENDİĞİNDE tetiklenir (Toshokan modu açıldı)
     map.on('overlayadd', function(e) {
         if (e.layer === toshokanLayer) {
             buttonContainer.style.display = 'block';
             
-            // Diğer katmanları haritadan kaldır ve tikleri kaldır (Düzeltme yapılmıştı)
-            map.removeLayer(locationsLayer);
-            map.removeLayer(sisLayer);
+            // Konumlar katmanı haritadan kaldırılır
+            if (map.hasLayer(locationsLayer)) {
+                 map.removeLayer(locationsLayer);
+            }
+            // Sisi Göster katmanı haritadan kaldırılır
+            if (map.hasLayer(sisLayer)) {
+                map.removeLayer(sisLayer);
+            }
+
+            // Düzeltme: Kontrol panelindeki tikleri (checkbox) görsel olarak kaldır
             konumlarInput.checked = false;
             sisInput.checked = false;
             
@@ -232,15 +240,21 @@
         }
     });
 
-    // Haritadan bir katman KALDIRILDIĞINDA tetiklenir
+    // Haritadan bir katman KALDIRILDIĞINDA tetiklenir (Toshokan modu kapatıldı)
     map.on('overlayremove', function(e) {
         if (e.layer === toshokanLayer) {
             buttonContainer.style.display = 'none';
+            
+            // Seçenekleri etkinleştir
             konumlarInput.disabled = false;
             sisInput.disabled = false;
             
             // Orijinal haritaya geri dön
             switchMap(0);
+            
+            // Not: Bu aşamada Konumlar ve Sisi Göster katmanları otomatik olarak tekrar
+            // haritaya eklenmez. Kullanıcının tiklemesi gerekir. Eğer isterseniz,
+            // bu noktada locationsLayer.addTo(map); diyerek otomatik açabilirsiniz.
         }
     });
 

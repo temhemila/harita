@@ -209,14 +209,10 @@
     });
 
     // --- POPUP İÇERİKLERİ VE KONUMLAR (DEĞİŞMEDİ) ---
-    var hydiahContent = "<h3>HYDİAH TOPRAKLARI</h3><p>Hydiah ırkından Istayu halkının yuvası olan bu bölge... <a href='...'>Devamı</a></p><img src='resimler/Hydiah.png' alt='...'>";
-    var hydiahMarker = L.marker([1365, 458], {icon: Isaret}).bindPopup(hydiahContent, { className: 'custom-popup' });
-    
-    var sissizContent = "<h3>Sissiz Alan</h3><p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanyası kadardır.</p><img src='resimler/SAHarita.png' alt='...'>"; 
-    var sissizMarker = L.marker([1098, 659], {icon: Isaret}).bindPopup(sissizContent, { className: 'custom-popup' });
-
-    var loblinContent = "<h3>İnsanın atası olan Lobino kemir-genine ev sahipliği yapar. Tektonik... <a href='...'>Devamı</a></p><img src='resimler/Hydiah.png' alt='...'>";
-    var loblinMarker = L.marker([1558, 1629], {icon: Isaret}).bindPopup(loblinContent, { className: 'custom-popup' });
+    var centerContent = "<h3>HYDİAH TOPRAKLARI</h3><p>Hydiah ırkından Istayu halkının yuvası olan bu bölge... <a href='...'>Devamı</a></p><img src='resimler/Hydiah.png' alt='...'>";
+    var centerMarker = L.marker([1365, 458], {icon: Isaret}).bindPopup(centerContent, { className: 'custom-popup' });
+    var kaleContent = "<h3>Sissiz Alan</h3><p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanyası kadardır.</p><img src='resimler/SAHarita.png' alt='...'>"; 
+    var northWestLocation = L.marker([1098, 659], {icon: Isaret}).bindPopup(kaleContent, { className: 'custom-popup' });
     
     var sisUrl = 'resimler/Bulutlar.png';
     var sisBounds = [[0, 0], [h, w]]; 

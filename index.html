@@ -14,8 +14,6 @@
      crossorigin=""></script>
      
     <style>
-        /* ... Önceki CSS kodları (body, #map, .custom-popup, #button-container) buraya KOPYALANACAK ... */
-
         body {
             padding: 0;
             margin: 0;
@@ -27,7 +25,6 @@
             background-color: #333;
         }
 
-        /* --- POPUP CSS --- */
         .custom-popup .leaflet-popup-content-wrapper {
             background: #f9f9f9;
             border-radius: 8px;
@@ -57,7 +54,6 @@
             margin-top: 5px;
         }
 
-        /* --- BUTON KONTEYNERİ CSS'İ --- */
         #button-container {
             position: absolute;
             bottom: 40px;
@@ -68,8 +64,6 @@
             padding: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            
-            /* Başlangıçta gizli */
             display: none; 
         }
 
@@ -115,34 +109,24 @@
         maxBoundsViscosity: 1.0
     });
 
-    // Harita resimlerinin listesi
     var mapImages = [
-        'resimler/Harita.png',   // index 0
-        'resimler/THarita1.png', // index 1
-        'resimler/THarita2.png', // index 2
-        'resimler/THarita3.png', // index 3
-        'resimler/THarita4.png'  // index 4
+        'resimler/Harita.png',
+        'resimler/THarita1.png',
+        'resimler/THarita2.png',
+        'resimler/THarita3.png',
+        'resimler/THarita4.png'
     ];
     
-    // YENİ: Harita katmanlarını tutacak dizi ve o anki aktif harita
     var mapLayers = [];
     var currentActiveMap = null;
 
-    // --- TÜM HARİTALARI ARKA PLANDA OLUŞTUR VE İNDİR ---
     mapImages.forEach((url, index) => {
-        // Her harita için bir L.imageOverlay oluştur
         var layer = L.imageOverlay(url, bounds);
-        
-        // Bu katmanı diziye ekle
         mapLayers.push(layer);
-        
-        // İlk haritayı (index 0) haritaya ekleyerek görünür yap
         if (index === 0) {
             layer.addTo(map);
             currentActiveMap = layer;
-        } 
-        // DİĞER HARİTALAR HARİTAYA EKLENMEZ, SADECE ARKA PLANDA TUTULUR.
-        // Tarayıcı bu noktada tüm resimleri indirmeye başlar (ön yükleme).
+        }
     });
 
     map.setView([h / 2, w / 2], -1.25);
@@ -154,7 +138,6 @@
         popupAnchor: [0, -32]
     });
 
-    // --- POPUP İÇERİKLERİ VE KONUMLAR (DEĞİŞMEDİ) ---
     var centerContent = "<h3>HYDİAH TOPRAKLARI</h3><p>Hydiah ırkından Istayu halkının yuvası olan bu bölge... <a href='...'>Devamı</a></p><img src='resimler/Hydiah.png' alt='...'>";
     var centerMarker = L.marker([1365, 458], {icon: Isaret}).bindPopup(centerContent, { className: 'custom-popup' });
     var kaleContent = "<h3>Sissiz Alan</h3><p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanyası kadardır.</p><img src='resimler/SAHarita.png' alt='...'>"; 
@@ -165,7 +148,6 @@
     var sisLayer = L.imageOverlay(sisUrl, sisBounds, { opacity: 0.8, interactive: false });
     var locationsLayer = L.layerGroup([centerMarker, northWestLocation]);
 
-    // "Toshokan Medeniyetleri" için boş bir katman
     var toshokanLayer = L.layerGroup();
 
     var overlayMaps = {
@@ -177,36 +159,20 @@
     var control = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
     locationsLayer.addTo(map);
     
-    
-    // --- BUTON VE KONTROL MANTIĞI ---
-
-    var buttonContainer = document.getElementById('button-container');
-    var controlContainer = control.getContainer();
-    var inputs = controlContainer.getElementsByTagName('input');
-    
-    var konumlarInput = inputs[0]; 
-    var sisInput = inputs[1];      
-
-    // YENİ HARİTA DEĞİŞTİRME FONKSİYONU (ANLIK ÇALIŞIR)
     function switchMap(index) {
         var newLayer = mapLayers[index];
-        
-        // Eğer zaten aktifse bir şey yapma
         if (newLayer === currentActiveMap) {
             return;
         }
-        
-        // Önceki aktif haritayı haritadan kaldır (EĞER VARSA)
         if (currentActiveMap) {
             map.removeLayer(currentActiveMap);
         }
-        
-        // Yeni haritayı ekle (bu anlık olacaktır, çünkü dosya zaten indirilmiştir)
         newLayer.addTo(map);
         currentActiveMap = newLayer;
     }
 
-    // Butonlara tek bir olay dinleyicisi ekleyerek işi basitleştir
+    var buttonContainer = document.getElementById('button-container');
+
     buttonContainer.addEventListener('click', function(e) {
         if (e.target.tagName === 'BUTTON') {
             var index = parseInt(e.target.dataset.mapIndex, 10);
@@ -214,32 +180,38 @@
         }
     });
 
+    var controlContainer = control.getContainer();
 
-    // Haritaya bir katman EKLENDİĞİNDE tetiklenir
+    function setOverlayCheckboxByName(name, checked, disabled) {
+        if (!controlContainer) return;
+        var labels = controlContainer.querySelectorAll('label');
+        labels.forEach(function(label) {
+            var text = label.textContent || label.innerText || '';
+            if (text.trim().indexOf(name) !== -1) {
+                var input = label.querySelector('input[type="checkbox"], input[type="radio"]');
+                if (input) {
+                    input.checked = !!checked;
+                    if (typeof disabled !== 'undefined') input.disabled = !!disabled;
+                }
+            }
+        });
+    }
+
     map.on('overlayadd', function(e) {
         if (e.layer === toshokanLayer) {
             buttonContainer.style.display = 'block';
-            
-            // Diğer katmanları haritadan kaldır ve tikleri kaldır (Düzeltme yapılmıştı)
-            map.removeLayer(locationsLayer);
-            map.removeLayer(sisLayer);
-            konumlarInput.checked = false;
-            sisInput.checked = false;
-            
-            // Seçenekleri devre dışı bırak
-            konumlarInput.disabled = true;
-            sisInput.disabled = true;
+            if (map.hasLayer(locationsLayer)) map.removeLayer(locationsLayer);
+            if (map.hasLayer(sisLayer)) map.removeLayer(sisLayer);
+            setOverlayCheckboxByName('Konumlar', false, true);
+            setOverlayCheckboxByName('Sisi Göster', false, true);
         }
     });
 
-    // Haritadan bir katman KALDIRILDIĞINDA tetiklenir
     map.on('overlayremove', function(e) {
         if (e.layer === toshokanLayer) {
             buttonContainer.style.display = 'none';
-            konumlarInput.disabled = false;
-            sisInput.disabled = false;
-            
-            // Orijinal haritaya geri dön
+            setOverlayCheckboxByName('Konumlar', false, false);
+            setOverlayCheckboxByName('Sisi Göster', false, false);
             switchMap(0);
         }
     });

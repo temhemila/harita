@@ -13,18 +13,18 @@
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
      
-     <style>
-         body {
+    <style>
+        body {
             padding: 0;
             margin: 0;
-         }
-         
+        }
+        
         #map { 
             height: 100vh;
             width: 100%; 
             background-color: #333;
         }
-     </style>
+    </style>
 </head>
 <body>
 
@@ -48,18 +48,36 @@
     map.setView([h / 2, w / 2], -1.25);
 
     var Isaret = L.icon({
-        iconUrl: 'resimler/Isaret2.png', // Başka bir ikon resmi (örnek)
+        iconUrl: 'resimler/Isaret2.png',
         iconSize: [48, 48],
         iconAnchor: [24, 48],
         popupAnchor: [0, -32]
     });
 
-    var centerMarker = L.marker([h / 2, w / 2], {icon: Isaret}).addTo(map);
+    var centerMarker = L.marker([h / 2, w / 2], {icon: Isaret});
     centerMarker.bindPopup("Haritanın Merkezi");
 
-    var northWestLocation = L.marker([1700, 300], {icon: Isaret}).addTo(map);
+    var northWestLocation = L.marker([1700, 300], {icon: Isaret});
     northWestLocation.bindPopup("Kuzeybatı Kalesi");
 
+    var sisUrl = 'resimler/Bulutlar.png';
+    var sisBounds = [[0, 0], [h, w]]; 
+    var sisLayer = L.imageOverlay(sisUrl, sisBounds, {
+        opacity: 0.8,
+        interactive: false
+    });
+    
+    var locationsLayer = L.layerGroup([centerMarker, northWestLocation]);
+
+    var overlayMaps = {
+        "Konumlar": locationsLayer,
+        "Sisi Göster": sisLayer
+    };
+
+    L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
+
+    locationsLayer.addTo(map);
+    
 </script>
 
 </body>

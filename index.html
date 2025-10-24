@@ -45,7 +45,7 @@
     var imageUrl = 'resimler/Harita.png';
     var image = L.imageOverlay(imageUrl, bounds).addTo(map);
 
-    map.setView([h / 2, w / 2], 1.25);
+    map.setView([h / 2, w / 2], -1);
 
     var centerMarker = L.marker([h / 2, w / 2]).addTo(map);
     centerMarker.bindPopup("Haritanın Merkezi");

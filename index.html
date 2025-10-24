@@ -55,7 +55,7 @@
             margin-top: 5px;
         }
 
-        /* --- YENİ EKLENEN BUTON KONTEYNERİ CSS'İ --- */
+        /* --- BUTON KONTEYNERİ CSS'İ --- */
         #button-container {
             position: absolute;
             bottom: 40px;
@@ -164,36 +164,31 @@
     
     var locationsLayer = L.layerGroup([centerMarker, northWestLocation]);
 
-    // YENİ: "Toshokan Medeniyetleri" için boş bir katman oluşturuyoruz.
-    // Bu katmanın tek amacı, katman kontrol menüsünde bir seçenek (checkbox) olarak görünmektir.
+    // "Toshokan Medeniyetleri" için boş bir katman
     var toshokanLayer = L.layerGroup();
 
     var overlayMaps = {
         "Konumlar": locationsLayer,
         "Sisi Göster": sisLayer,
-        "Toshokan Medeniyetleri": toshokanLayer // Yeni seçeneği ekle
+        "Toshokan Medeniyetleri": toshokanLayer
     };
 
-    // Katman kontrolünü (L.control.layers) bir değişkene atıyoruz
     var control = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
 
-    // Konumlar varsayılan olarak açık başlasın
     locationsLayer.addTo(map);
     
     
-    // --- YENİ EKLENEN BUTON VE KONTROL MANTIĞI ---
+    // --- BUTON VE KONTROL MANTIĞI ---
 
-    // HTML elementlerini al
     var buttonContainer = document.getElementById('button-container');
 
-    // Katman kontrol menüsündeki input (checkbox) elementlerini almamız gerekiyor.
-    // L.control.layers DOM'a eklendikten sonra bu işlemi yapabiliriz.
     var controlContainer = control.getContainer();
     var inputs = controlContainer.getElementsByTagName('input');
     
-    // overlayMaps objesindeki sıraya göre input'ları al:
+    // NOT: inputlar, overlayMaps objesindeki sırayla gelir.
     var konumlarInput = inputs[0]; // "Konumlar" checkbox'ı
     var sisInput = inputs[1];      // "Sisi Göster" checkbox'ı
+    // inputs[2] ise "Toshokan Medeniyetleri" checkbox'ı
 
     // Harita değiştirme fonksiyonu
     function setMapImage(index) {
@@ -213,14 +208,18 @@
         
         // Eğer eklenen katman "Toshokan Medeniyetleri" ise:
         if (e.layer === toshokanLayer) {
-            // 1. Harita değiştirme butonlarını görünür yap
+            // 1. Butonları görünür yap
             buttonContainer.style.display = 'block';
             
             // 2. Diğer katmanları (Konumlar ve Sis) haritadan kaldır
             map.removeLayer(locationsLayer);
             map.removeLayer(sisLayer);
             
-            // 3. Diğer katmanların seçeneklerini (checkbox'larını) devre dışı bırak
+            // 3. EN ÖNEMLİ DÜZELTME: Checkbox'lardaki tikleri (checked durumunu) manuel olarak kaldır.
+            konumlarInput.checked = false;
+            sisInput.checked = false;
+            
+            // 4. Diğer katmanların seçeneklerini (checkbox'larını) devre dışı bırak
             konumlarInput.disabled = true;
             sisInput.disabled = true;
         }
@@ -231,7 +230,7 @@
         
         // Eğer kaldırılan katman "Toshokan Medeniyetleri" ise:
         if (e.layer === toshokanLayer) {
-            // 1. Harita değiştirme butonlarını gizle
+            // 1. Butonları gizle
             buttonContainer.style.display = 'none';
             
             // 2. Diğer katmanların seçeneklerini (checkbox'larını) tekrar etkinleştir

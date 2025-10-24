@@ -4,90 +4,28 @@
     <title>Fantezi Dünya Haritam</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
-    
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
-     
     <style>
-        body {
-            padding: 0;
-            margin: 0;
-        }
-        
-        #map { 
-            height: 100vh;
-            width: 100%; 
-            background-color: #333;
-        }
-
-        .custom-popup .leaflet-popup-content-wrapper {
-            background: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        .custom-popup .leaflet-popup-content {
-            margin: 15px;
-            width: 250px;
-        }
-        .custom-popup h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-        }
-        .custom-popup p {
-            margin: 5px 0 10px 0;
-            color: #555;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        .custom-popup img {
-            width: 100%;
-            height: auto;
-            border-radius: 4px;
-            margin-top: 5px;
-        }
-
-        #button-container {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            display: none; 
-        }
-
-        #button-container button {
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 5px 10px;
-            cursor: pointer;
-            margin: 0 3px;
-        }
-        #button-container button:hover {
-            background: #f4f4f4;
-        }
-        #button-container button:active {
-            background: #eee;
-        }
-
+        body { padding: 0; margin: 0; }
+        #map { height: 100vh; width: 100%; background-color: #333; }
+        .custom-popup .leaflet-popup-content-wrapper { background: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .custom-popup .leaflet-popup-content { margin: 15px; width: 250px; }
+        .custom-popup h3 { margin-top: 0; margin-bottom: 10px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .custom-popup p { margin: 5px 0 10px 0; color: #555; font-size: 14px; line-height: 1.4; }
+        .custom-popup img { width: 100%; height: auto; border-radius: 4px; margin-top: 5px; }
+        #button-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: none; }
+        #button-container button { background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 5px 10px; cursor: pointer; margin: 0 3px; }
+        #button-container button:hover { background: #f4f4f4; }
+        #button-container button:active { background: #eee; }
     </style>
 </head>
 <body>
-
 <div id="map"></div>
-
 <div id="button-container">
     <button data-map-index="0" id="btn-map-0">Ana Harita</button>
     <button data-map-index="1" id="btn-map-1">T. Harita 1</button>
@@ -95,128 +33,76 @@
     <button data-map-index="3" id="btn-map-3">T. Harita 3</button>
     <button data-map-index="4" id="btn-map-4">T. Harita 4</button>
 </div>
-
-
 <script>
     var w = 2048;
     var h = 2048;
     var bounds = [[0, 0], [h, w]];
-
-    var map = L.map('map', {
-        crs: L.CRS.Simple,
-        minZoom: -2,
-        maxBounds: bounds,
-        maxBoundsViscosity: 1.0
-    });
-
-    var mapImages = [
-        'resimler/Harita.png',
-        'resimler/THarita1.png',
-        'resimler/THarita2.png',
-        'resimler/THarita3.png',
-        'resimler/THarita4.png'
-    ];
-    
+    var map = L.map('map', { crs: L.CRS.Simple, minZoom: -2, maxBounds: bounds, maxBoundsViscosity: 1.0 });
+    var mapImages = ['resimler/Harita.png','resimler/THarita1.png','resimler/THarita2.png','resimler/THarita3.png','resimler/THarita4.png'];
     var mapLayers = [];
     var currentActiveMap = null;
-
-    mapImages.forEach((url, index) => {
-        var layer = L.imageOverlay(url, bounds);
+    mapImages.forEach(function(url,index){
+        var layer = L.imageOverlay(url,bounds);
         mapLayers.push(layer);
-        if (index === 0) {
-            layer.addTo(map);
-            currentActiveMap = layer;
-        }
+        if(index===0){ layer.addTo(map); currentActiveMap = layer; }
     });
-
-    map.setView([h / 2, w / 2], -1.25);
-
-    var Isaret = L.icon({
-        iconUrl: 'resimler/Isaret2.png',
-        iconSize: [48, 48],
-        iconAnchor: [24, 48],
-        popupAnchor: [0, -32]
-    });
-
+    map.setView([h/2,w/2], -1.25);
+    var Isaret = L.icon({ iconUrl: 'resimler/Isaret2.png', iconSize: [48,48], iconAnchor: [24,48], popupAnchor: [0,-32] });
     var centerContent = "<h3>HYDİAH TOPRAKLARI</h3><p>Hydiah ırkından Istayu halkının yuvası olan bu bölge... <a href='...'>Devamı</a></p><img src='resimler/Hydiah.png' alt='...'>";
-    var centerMarker = L.marker([1365, 458], {icon: Isaret}).bindPopup(centerContent, { className: 'custom-popup' });
-    var kaleContent = "<h3>Sissiz Alan</h3><p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanyası kadardır.</p><img src='resimler/SAHarita.png' alt='...'>"; 
-    var northWestLocation = L.marker([1098, 659], {icon: Isaret}).bindPopup(kaleContent, { className: 'custom-popup' });
-    
+    var centerMarker = L.marker([1365,458], {icon: Isaret}).bindPopup(centerContent, { className: 'custom-popup' });
+    var kaleContent = "<h3>Sissiz Alan</h3><p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanyası kadardır.</p><img src='resimler/SAHarita.png' alt='...'>";
+    var northWestLocation = L.marker([1098,659], {icon: Isaret}).bindPopup(kaleContent, { className: 'custom-popup' });
     var sisUrl = 'resimler/Bulutlar.png';
-    var sisBounds = [[0, 0], [h, w]]; 
+    var sisBounds = [[0,0],[h,w]];
     var sisLayer = L.imageOverlay(sisUrl, sisBounds, { opacity: 0.8, interactive: false });
     var locationsLayer = L.layerGroup([centerMarker, northWestLocation]);
-
     var toshokanLayer = L.layerGroup();
-
-    var overlayMaps = {
-        "Konumlar": locationsLayer,
-        "Sisi Göster": sisLayer,
-        "Toshokan Medeniyetleri": toshokanLayer
-    };
-
+    var overlayMaps = { "Konumlar": locationsLayer, "Sisi Göster": sisLayer, "Toshokan Medeniyetleri": toshokanLayer };
     var control = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
     locationsLayer.addTo(map);
-    
-    function switchMap(index) {
-        var newLayer = mapLayers[index];
-        if (newLayer === currentActiveMap) {
-            return;
-        }
-        if (currentActiveMap) {
-            map.removeLayer(currentActiveMap);
-        }
-        newLayer.addTo(map);
-        currentActiveMap = newLayer;
-    }
-
+    function switchMap(index){ var newLayer = mapLayers[index]; if(newLayer===currentActiveMap) return; if(currentActiveMap) map.removeLayer(currentActiveMap); newLayer.addTo(map); currentActiveMap = newLayer; }
     var buttonContainer = document.getElementById('button-container');
-
-    buttonContainer.addEventListener('click', function(e) {
-        if (e.target.tagName === 'BUTTON') {
-            var index = parseInt(e.target.dataset.mapIndex, 10);
-            switchMap(index);
-        }
-    });
-
+    buttonContainer.addEventListener('click', function(e){ if(e.target.tagName==='BUTTON'){ var index = parseInt(e.target.dataset.mapIndex,10); switchMap(index); } });
     var controlContainer = control.getContainer();
-
-    function setOverlayCheckboxByName(name, checked, disabled) {
-        if (!controlContainer) return;
+    function findOverlayInput(name){
         var labels = controlContainer.querySelectorAll('label');
-        labels.forEach(function(label) {
-            var text = label.textContent || label.innerText || '';
-            if (text.trim().indexOf(name) !== -1) {
-                var input = label.querySelector('input[type="checkbox"], input[type="radio"]');
-                if (input) {
-                    input.checked = !!checked;
-                    if (typeof disabled !== 'undefined') input.disabled = !!disabled;
-                }
+        for(var i=0;i<labels.length;i++){
+            var txt = (labels[i].textContent||labels[i].innerText||'').trim();
+            if(txt.indexOf(name) !== -1){
+                var input = labels[i].querySelector('input[type="checkbox"], input[type="radio"]');
+                if(input) return input;
             }
-        });
-    }
-
-    map.on('overlayadd', function(e) {
-        if (e.layer === toshokanLayer) {
-            buttonContainer.style.display = 'block';
-            if (map.hasLayer(locationsLayer)) map.removeLayer(locationsLayer);
-            if (map.hasLayer(sisLayer)) map.removeLayer(sisLayer);
-            setOverlayCheckboxByName('Konumlar', false, true);
-            setOverlayCheckboxByName('Sisi Göster', false, true);
         }
+        return null;
+    }
+    var konumInput = findOverlayInput('Konumlar');
+    var sisInput = findOverlayInput('Sisi Göster');
+    var toshokanInput = findOverlayInput('Toshokan Medeniyetleri');
+    if(konumInput) konumInput.checked = map.hasLayer(locationsLayer);
+    if(sisInput) sisInput.checked = map.hasLayer(sisLayer);
+    if(toshokanInput) toshokanInput.checked = map.hasLayer(toshokanLayer);
+    if(konumInput) konumInput.addEventListener('change', function(){
+        if(this.checked) map.addLayer(locationsLayer); else map.removeLayer(locationsLayer);
     });
-
-    map.on('overlayremove', function(e) {
-        if (e.layer === toshokanLayer) {
+    if(sisInput) sisInput.addEventListener('change', function(){
+        if(this.checked) map.addLayer(sisLayer); else map.removeLayer(sisLayer);
+    });
+    if(toshokanInput) toshokanInput.addEventListener('change', function(){
+        if(this.checked){
+            map.addLayer(toshokanLayer);
+            if(map.hasLayer(locationsLayer)) map.removeLayer(locationsLayer);
+            if(map.hasLayer(sisLayer)) map.removeLayer(sisLayer);
+            if(konumInput){ konumInput.checked = false; konumInput.disabled = true; }
+            if(sisInput){ sisInput.checked = false; sisInput.disabled = true; }
+            buttonContainer.style.display = 'block';
+        } else {
+            if(map.hasLayer(toshokanLayer)) map.removeLayer(toshokanLayer);
+            if(konumInput) konumInput.disabled = false;
+            if(sisInput) sisInput.disabled = false;
             buttonContainer.style.display = 'none';
-            setOverlayCheckboxByName('Konumlar', false, false);
-            setOverlayCheckboxByName('Sisi Göster', false, false);
             switchMap(0);
         }
     });
-
 </script>
-
 </body>
 </html>

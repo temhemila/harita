@@ -47,10 +47,17 @@
 
     map.setView([h / 2, w / 2], -1.25);
 
-    var centerMarker = L.marker([h / 2, w / 2]).addTo(map);
+    var Isaret = L.icon({
+        iconUrl: 'resimler/Isaret.png', // Başka bir ikon resmi (örnek)
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+
+    var centerMarker = L.marker([h / 2, w / 2], {icon: Isaret}).addTo(map);
     centerMarker.bindPopup("Haritanın Merkezi");
 
-    var northWestLocation = L.marker([1700, 300]).addTo(map);
+    var northWestLocation = L.marker([1700, 300], {icon: Isaret}).addTo(map);
     northWestLocation.bindPopup("Kuzeybatı Kalesi");
 
 </script>

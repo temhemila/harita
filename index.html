@@ -1,54 +1,51 @@
-<!doctype html>
-<html lang="tr">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <title>Toshokan no Daimajutsushi</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet CSS (CDN) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-
-  <style>
-    html, body, #map { height: 100%; margin: 0; padding: 0; }
-    #map { min-height: 400px; }
-    header { padding: 8px; font-family: Arial, sans-serif; background:#f8f8f8; }
-  </style>
+    <title>Fantezi Dünya Haritam</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+     <style>
+        #map { 
+            height: 100vh;
+            width: 100%; 
+            background-color: #333;
+        }
+    </style>
 </head>
-<body>
-  <header>
-  </header>
 
-  <div id="map"></div>
+<div id="map"></div>
 
-  <!-- Leaflet JS (CDN) -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    var map = L.map('map', {
+        crs: L.CRS.Simple,
+        minZoom: -2 
+    });
 
-  <script>
-    // Başlangıç koordinatları ve zoom (değiştir)
-    const lat = 41.0082; // örnek: İstanbul
-    const lng = 28.9784;
-    const zoom = 13;
+    var w = 1990;
+    var h = 1952;
 
-    // Harita oluştur
-    const map = L.map('map').setView([lat, lng], zoom);
+    var bounds = [[0, 0], [h, w]];
 
-    // OpenStreetMap tile layer (kullanım şartlarına dikkat: attribution zorunlu)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    var imageUrl = 'resimler/KıtaHaritası.png';
+    var image = L.imageOverlay(imageUrl, bounds).addTo(map);
 
-    // Marker ve popup
-    const marker = L.marker([lat, lng]).addTo(map);
-    marker.bindPopup('<b>Merhaba!</b><br>Buraya açıklama ekleyebilirsin.').openPopup();
+    map.fitBounds(bounds);
 
-    // Örnek: GeoJSON yüklemek istersen (bir dosyadan veya değişkenden)
-    // fetch('data/my-geojson.json').then(r=>r.json()).then(geojson=>{
-    //   L.geoJSON(geojson).addTo(map);
-    // });
+    var centerMarker = L.marker([h / 2, w / 2]).addTo(map);
+    centerMarker.bindPopup("Haritanın Merkezi");
 
-  </script>
+    var northWestLocation = L.marker([1700, 300]).addTo(map);
+    northWestLocation.bindPopup("Kuzeybatı Kalesi");
+
+</script>
+
 </body>
 </html>

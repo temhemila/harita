@@ -37,7 +37,7 @@
 
     var map = L.map('map', {
         crs: L.CRS.Simple,
-        minZoom: -1.25,
+        minZoom: -2,
         maxBounds: bounds,
         maxBoundsViscosity: 1.0
     });
@@ -45,7 +45,7 @@
     var imageUrl = 'resimler/Harita.png';
     var image = L.imageOverlay(imageUrl, bounds).addTo(map);
 
-    map.setView([h / 2, w / 2], 1);
+    map.setView([h / 2, w / 2], 1.25);
 
     var centerMarker = L.marker([h / 2, w / 2]).addTo(map);
     centerMarker.bindPopup("Haritanın Merkezi");

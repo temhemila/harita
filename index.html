@@ -21,7 +21,7 @@
         }
         
         #map { 
-            height: 100vh;
+            height: 100vh; 
             width: 100%; 
             background-color: #333;
         }
@@ -322,9 +322,6 @@
         if (currentActiveMap) {
             map.removeLayer(currentActiveMap);
         }
-        if (map.hasLayer(aftzaakMapLayer)) {
-             map.removeLayer(aftzaakMapLayer);
-        }
         
         newLayer.addTo(map);
         currentActiveMap = newLayer;
@@ -338,7 +335,8 @@
     }
     
     // AFTZAAK HARİTASINA GEÇİŞ FONKSİYONU
-    functionswitchToAftzaak() {
+    // *** DÜZELTME: 'function' ve 'switchToAftzaak' arasına boşluk eklendi. ***
+    function switchToAftzaak() {
         if (currentActiveMap === aftzaakMapLayer) {
             return;
         }

@@ -228,6 +228,9 @@
     var mapLayers = [];
     var currentActiveMap = null;
     var currentTarihIndex = 1; // Toshokan Tarihi haritaları 1-4 arası
+    
+    // *** YENİ: Aktif katman kontrol panelini (sağ panel) tutmak için değişken
+    var currentLayerControl = null;
 
     var mapInfoContainer = document.getElementById('map-info');
     var infoTitle = document.getElementById('info-title');
@@ -276,36 +279,22 @@
     var sisLayer = L.imageOverlay(sisUrl, sisBounds, { opacity: 0.8, interactive: false });
     
     // --- KATMAN 3: AFTZAAK KONUMLARI ---
-    // Örnek bir marker ekledim, kendi markerlarınızı buraya ekleyebilirsiniz
     var aftzaakMarker1 = L.marker([1000, 1000], {icon: Isaret}).bindPopup("Aftzaak Konum 1", { className: 'custom-popup' });
     var aftzaakMarker2 = L.marker([1200, 800], {icon: Isaret}).bindPopup("Aftzaak Konum 2", { className: 'custom-popup' });
     var aftzaakLocationsLayer = L.layerGroup([aftzaakMarker1, aftzaakMarker2]);
 
 
     // --- SAĞ KONTROL PANELİ (DİNAMİK) ---
-    var overlayMaps = {
-        "Konumlar (Kıta)": locationsLayer,
-        "Sisi Göster": sisLayer,
-        "Konumlar (Aftzaak)": aftzaakLocationsLayer
-    };
-
-    var control = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
-    locationsLayer.addTo(map); // Başlangıçta Kıta Konumları aktif
+    // *** KALDIRILDI: Başlangıçta kontrol paneli oluşturmuyoruz.
+    // var control = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
+    // locationsLayer.addTo(map); 
     
     
     // --- KONTROL ELEMANLARINI ALMA ---
-    
-    var controlContainer = control.getContainer();
-    var inputs = controlContainer.getElementsByTagName('input');
-    
-    // Sağ paneldeki checkbox'ların kendilerini ve satırlarını (div'lerini) alıyoruz
-    var kıtaKonumlarInput = inputs[0];
-    var sisInput = inputs[1]; 
-    var aftzaakKonumlarInput = inputs[2];
-    
-    var kıtaKonumlarRow = kıtaKonumlarInput.parentElement.parentElement;
-    var sisRow = sisInput.parentElement.parentElement;
-    var aftzaakKonumlarRow = aftzaakKonumlarInput.parentElement.parentElement;
+    // *** KALDIRILDI: Bu değişkenler artık dinamik olarak yönetildiği için gerekmiyor.
+    // var controlContainer = control.getContainer();
+    // var inputs = controlContainer.getElementsByTagName('input');
+    // ... vb.
 
 
     // --- FONKSİYONLAR ---
@@ -335,7 +324,6 @@
     }
     
     // AFTZAAK HARİTASINA GEÇİŞ FONKSİYONU
-    // *** DÜZELTME: 'function' ve 'switchToAftzaak' arasına boşluk eklendi. ***
     function switchToAftzaak() {
         if (currentActiveMap === aftzaakMapLayer) {
             return;
@@ -356,9 +344,34 @@
         map.removeLayer(sisLayer);
         map.removeLayer(aftzaakLocationsLayer);
         
-        kıtaKonumlarInput.checked = false;
-        sisInput.checked = false;
-        aftzaakKonumlarInput.checked = false;
+        // *** KALDIRILDI: Checkbox'lar artık dinamik olarak yok edilip yaratılıyor.
+        // kıtaKonumlarInput.checked = false;
+        // ... vb.
+    }
+
+    // *** YENİ: Harita moduna göre sağdaki katman panelini güncelleyen fonksiyon
+    function updateLayerControl(mode) {
+        // 1. Varsa, mevcut katman kontrol panelini kaldır
+        if (currentLayerControl) {
+            map.removeControl(currentLayerControl);
+            currentLayerControl = null;
+        }
+
+        // 2. Yeni moda göre yeni bir panel oluştur
+        if (mode === 'kıta') {
+            var kıtaOverlays = {
+                "Konumlar": locationsLayer,
+                "Sisi Göster": sisLayer
+            };
+            currentLayerControl = L.control.layers(null, kıtaOverlays, { collapsed: false }).addTo(map);
+            
+        } else if (mode === 'aftzaak') {
+            var aftzaakOverlays = {
+                "Konumlar": aftzaakLocationsLayer
+            };
+            currentLayerControl = L.control.layers(null, aftzaakOverlays, { collapsed: false }).addTo(map);
+        }
+        // 'tarih' modundaysa, hiçbir panel oluşturulmaz (currentLayerControl = null olarak kalır)
     }
 
 
@@ -368,52 +381,49 @@
     document.getElementById('left-panel').addEventListener('change', function(e) {
         if (e.target.name === 'map-mode') {
             
-            clearAllOverlays(); // Her mod değişiminde tüm konum/sis katmanlarını temizle
+            clearAllOverlays(); // Önce tüm konum/sis katmanlarını haritadan temizle
             
-            switch (e.target.value) {
+            var newMode = e.target.value;
+            
+            // *** YENİ: Mod ne olursa olsun, önce sağ paneli güncelle
+            updateLayerControl(newMode);
+            
+            switch (newMode) {
                 case 'kıta':
                     switchMap(0); // Ana Harita'ya (index 0) geç
                     
                     // Arayüzü ayarla
-                    controlContainer.style.display = 'block';
                     buttonContainer.style.display = 'none';
                     mapInfoContainer.style.display = 'none';
                     
-                    // Sağ panel seçeneklerini ayarla
-                    kıtaKonumlarRow.style.display = 'block';
-                    sisRow.style.display = 'block';
-                    aftzaakKonumlarRow.style.display = 'none';
+                    // *** GÜNCELLENDİ: DOM manipülasyonu (row.style.display) kaldırıldı
                     
                     // Kıta konumlarını varsayılan olarak ekle
-                    map.addLayer(locationsLayer);
-                    kıtaKonumlarInput.checked = true;
+                    locationsLayer.addTo(map);
+                    // (Panel (updateLayerControl) zaten oluşturulduğu için 
+                    //  Leaflet katmanın ekli olduğunu görüp checkbox'ı işaretleyecektir)
                     break;
                     
                 case 'tarih':
                     switchMap(1); // İlk Toshokan Tarihi haritasına (index 1) geç
                     
                     // Arayüzü ayarla
-                    controlContainer.style.display = 'none'; // Sağ paneli gizle
                     buttonContainer.style.display = 'block';
                     mapInfoContainer.style.display = 'block';
+                    // (updateLayerControl('tarih') paneli kaldırdı)
                     break;
                     
                 case 'aftzaak':
                     switchToAftzaak(); // Aftzaak haritasına geç
                     
                     // Arayüzü ayarla
-                    controlContainer.style.display = 'block';
                     buttonContainer.style.display = 'none';
                     mapInfoContainer.style.display = 'none';
                     
-                    // Sağ panel seçeneklerini ayarla
-                    kıtaKonumlarRow.style.display = 'none';
-                    sisRow.style.display = 'none';
-                    aftzaakKonumlarRow.style.display = 'block';
+                    // *** GÜNCELLENDİ: DOM manipülasyonu (row.style.display) kaldırıldı
                     
                     // Aftzaak konumlarını varsayılan olarak ekle
-                    map.addLayer(aftzaakLocationsLayer);
-                    aftzaakKonumlarInput.checked = true;
+                    aftzaakLocationsLayer.addTo(map);
                     break;
             }
         }
@@ -452,13 +462,13 @@
     // --- BAŞLANGIÇ AYARLARI ---
     // Sayfa yüklendiğinde varsayılan (Kıta) durumunu ayarla
     function initializeMapState() {
-        // Sadece Kıta haritası seçenekleri görünür olsun
-        kıtaKonumlarRow.style.display = 'block';
-        sisRow.style.display = 'block';
-        aftzaakKonumlarRow.style.display = 'none';
+        // *** YENİ: Başlangıçta 'kıta' modu için sağ paneli oluştur
+        updateLayerControl('kıta');
         
-        // Aftzaak konumları kapalı olsun
-        aftzaakKonumlarInput.checked = false;
+        // *** YENİ: Başlangıç katmanını haritaya ekle
+        locationsLayer.addTo(map);
+        
+        // *** GÜNCELLENDİ: Eski DOM satırları kaldırıldı
         
         // Diğer paneller gizli olsun
         buttonContainer.style.display = 'none';

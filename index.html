@@ -122,7 +122,8 @@
         /* --- YENİ: SOL KONTROL PANELİ (HARİTA MODLARI) --- */
         #left-panel {
             position: absolute;
-            top: 10px;
+            /* *** DÜZELTME: Zoom kontrolünün altına almak için 10px -> 80px *** */
+            top: 80px; 
             left: 10px;
             z-index: 1000;
             background: rgba(255, 255, 255, 0.85);
@@ -184,18 +185,24 @@
 
 
 <script>
-    var w = 2048;
-    var h = 2048;
-    var bounds = [[0, 0], [h, w]];
+    // --- HARİTA GÖRSELLERİ VE BİLGİLERİ ---
+    
+    // Ayrı harita boyutları tanımlandı
+    var kıtaWidth = 2048;
+    var kıtaHeight = 2048;
+    var kıtaBounds = [[0, 0], [kıtaHeight, kıtaWidth]]; // [[0, 0], [2048, 2048]]
+
+    var aftzaakWidth = 1696;
+    var aftzaakHeight = 2048;
+    var aftzaakBounds = [[0, 0], [aftzaakHeight, aftzaakWidth]]; // [[0, 0], [2048, 1696]]
+
 
     var map = L.map('map', {
         crs: L.CRS.Simple,
         minZoom: -2,
-        maxBounds: bounds,
+        maxBounds: kıtaBounds, // Varsayılan olarak kıta sınırları
         maxBoundsViscosity: 1.0
     });
-
-    // --- HARİTA GÖRSELLERİ VE BİLGİLERİ ---
 
     // 0: Kıta, 1-4: Toshokan Tarihi
     var mapImages = [
@@ -207,7 +214,7 @@
     ];
     
     // Aftzaak haritası için ayrı bir katman
-    var aftzaakMapLayer = L.imageOverlay('resimler/KSehri.png', bounds);
+    var aftzaakMapLayer = L.imageOverlay('resimler/KSehri.png', aftzaakBounds);
 
     var mapDescriptions = [
         "Standart coğrafya haritası. Bu, dünyanın günümüzdeki genel görünümüdür.", // Harita 0
@@ -229,7 +236,7 @@
     var currentActiveMap = null;
     var currentTarihIndex = 1; // Toshokan Tarihi haritaları 1-4 arası
     
-    // *** YENİ: Aktif katman kontrol panelini (sağ panel) tutmak için değişken
+    // Aktif katman kontrol panelini (sağ panel) tutmak için değişken
     var currentLayerControl = null;
 
     var mapInfoContainer = document.getElementById('map-info');
@@ -240,7 +247,8 @@
 
     // --- TÜM HARİTALARI ARKA PLANDA OLUŞTUR ---
     mapImages.forEach((url, index) => {
-        var layer = L.imageOverlay(url, bounds);
+        // Kıta ve Tarih haritaları 'kıtaBounds' kullanır
+        var layer = L.imageOverlay(url, kıtaBounds);
         mapLayers.push(layer);
         
         if (index === 0) {
@@ -250,7 +258,8 @@
         } 
     });
 
-    map.setView([h / 2, w / 2], -1.25);
+    // Başlangıç view'ı kıta boyutlarına göre ayarlandı
+    map.setView([kıtaHeight / 2, kıtaWidth / 2], -1.25);
 
     var Isaret = L.icon({
         iconUrl: 'resimler/Isaret2.png',
@@ -263,7 +272,7 @@
     var centerContent = "<h3>HYDİAH TOPRAKLARI</h3><p>Hydiah ırkından Istayu halkının yuvası olan bu bölge... <a href='...'>Devamı</a></p><img src='resimler/Hydiah.png' alt='...'>";
     var centerMarker = L.marker([1365, 458], {icon: Isaret}).bindPopup(centerContent, { className: 'custom-popup' });
     var kaleContent = "<h3>Sissiz Alan</h3><p>Acıpelin Gizmeni felaketi sonrası geriye kalan yaşanabilir bölge, boyutu günümüz Almanyası kadardır.</p><img src='resimler/SAHarita.png' alt='...'>"; 
-    var northWestLocation = L.marker([1098, 659], {icon: Isaret}).bindPopup(kaleContent, { className: 'custom-popup' });
+    var northWestLocation = L.marker([1098, 659], {icon: Isaret}).bindPopup( kaleContent, { className: 'custom-popup' });
     var lobinContent = "<h3>LOBİN BÖLGESİ</h3><p>İnsanın atası olan Lobino kemir-genine ev sahipliği yapar. Tektonik... <a href='...'>Devamı</a></p><img src='resimler/Lobin.png' alt='Lobino Kemirgeni'>";
     var lobinLocation = L.marker([1558, 1650], {icon: Isaret}).bindPopup(lobinContent, { className: 'custom-popup' }); 
     var yoktContent = "<h3>SIRAKADİ BÖLGESİ</h3><p>Syrrana Savaşı'ndan geride kalmış bir savaş alanının kalıntıla- <a href='...'>Devamı</a></p><img src='resimler/Yokt.png' alt='Syrrana Savaşı Alanı'>";
@@ -275,26 +284,20 @@
 
     // --- KATMAN 2: SİS KATMANI (KITA HARİTASI İÇİN) ---
     var sisUrl = 'resimler/Bulutlar.png';
-    var sisBounds = [[0, 0], [h, w]]; 
+    var sisBounds = [[0, 0], [kıtaHeight, kıtaWidth]]; // Bu da kıta boyutlarında
     var sisLayer = L.imageOverlay(sisUrl, sisBounds, { opacity: 0.8, interactive: false });
     
     // --- KATMAN 3: AFTZAAK KONUMLARI ---
-    var aftzaakMarker1 = L.marker([1000, 1000], {icon: Isaret}).bindPopup("Aftzaak Konum 1", { className: 'custom-popup' });
-    var aftzaakMarker2 = L.marker([1200, 800], {icon: Isaret}).bindPopup("Aftzaak Konum 2", { className: 'custom-popup' });
+    
+    // *** GÜNCELLENDİ: Marker 1 (Saray) Metin eklendi (Koordinat: Y:1527, X:1405) ***
+    var aftzaakContent1 = "<h3>Aftzaanka Sarayı</h3><p>Aftzaak'ın mevcut hükümdarları olan... <a href='#'>Devamı</a></p><img src='resimler/Aftzaanka.png' alt='Aftzaanka Sarayı'>";
+    var aftzaakMarker1 = L.marker([1527, 1405], {icon: Isaret}).bindPopup(aftzaakContent1, { className: 'custom-popup' });
+    
+    // *** GÜNCELLENDİ: Marker 2 (Enstitü) (Koordinat: Y:1352, X:299) ***
+    var aftzaakContent2 = "<h3>TOHNE ENSTİTÜSÜ İKİNCİ KAMPÜSÜ</h3><p>Şehirdeki en seçkin alimlerin görev yaptığı... <a href='#'>Devamı</a></p><img src='resimler/Tohne.png' alt='Tohne Enstitüsü'>";
+    var aftzaakMarker2 = L.marker([1352, 299], {icon: Isaret}).bindPopup(aftzaakContent2, { className: 'custom-popup' });
+    
     var aftzaakLocationsLayer = L.layerGroup([aftzaakMarker1, aftzaakMarker2]);
-
-
-    // --- SAĞ KONTROL PANELİ (DİNAMİK) ---
-    // *** KALDIRILDI: Başlangıçta kontrol paneli oluşturmuyoruz.
-    // var control = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
-    // locationsLayer.addTo(map); 
-    
-    
-    // --- KONTROL ELEMANLARINI ALMA ---
-    // *** KALDIRILDI: Bu değişkenler artık dinamik olarak yönetildiği için gerekmiyor.
-    // var controlContainer = control.getContainer();
-    // var inputs = controlContainer.getElementsByTagName('input');
-    // ... vb.
 
 
     // --- FONKSİYONLAR ---
@@ -314,6 +317,13 @@
         
         newLayer.addTo(map);
         currentActiveMap = newLayer;
+
+        // Harita sınırlarını ve merkezini Kıta/Tarih için ayarla
+        map.setMaxBounds(kıtaBounds);
+        // Sadece ana kıta haritasına (index 0) dönerken merkezi sıfırla
+        if (index === 0) {
+            map.setView([kıtaHeight / 2, kıtaWidth / 2], -1.25);
+        }
         
         // Sadece Toshokan Tarihi haritaları (index 1-4) için bilgi kutusunu güncelle
         if (index > 0) {
@@ -336,6 +346,10 @@
         
         aftzaakMapLayer.addTo(map);
         currentActiveMap = aftzaakMapLayer;
+
+        // Harita sınırlarını ve merkezini Aftzaak için ayarla
+        map.setMaxBounds(aftzaakBounds);
+        map.setView([aftzaakHeight / 2, aftzaakWidth / 2], -1.25);
     }
     
     // Tüm overlay katmanlarını temizle
@@ -343,13 +357,9 @@
         map.removeLayer(locationsLayer);
         map.removeLayer(sisLayer);
         map.removeLayer(aftzaakLocationsLayer);
-        
-        // *** KALDIRILDI: Checkbox'lar artık dinamik olarak yok edilip yaratılıyor.
-        // kıtaKonumlarInput.checked = false;
-        // ... vb.
     }
 
-    // *** YENİ: Harita moduna göre sağdaki katman panelini güncelleyen fonksiyon
+    // Harita moduna göre sağdaki katman panelini güncelleyen fonksiyon
     function updateLayerControl(mode) {
         // 1. Varsa, mevcut katman kontrol panelini kaldır
         if (currentLayerControl) {
@@ -385,7 +395,7 @@
             
             var newMode = e.target.value;
             
-            // *** YENİ: Mod ne olursa olsun, önce sağ paneli güncelle
+            // Mod ne olursa olsun, önce sağ paneli güncelle
             updateLayerControl(newMode);
             
             switch (newMode) {
@@ -396,12 +406,8 @@
                     buttonContainer.style.display = 'none';
                     mapInfoContainer.style.display = 'none';
                     
-                    // *** GÜNCELLENDİ: DOM manipülasyonu (row.style.display) kaldırıldı
-                    
                     // Kıta konumlarını varsayılan olarak ekle
                     locationsLayer.addTo(map);
-                    // (Panel (updateLayerControl) zaten oluşturulduğu için 
-                    //  Leaflet katmanın ekli olduğunu görüp checkbox'ı işaretleyecektir)
                     break;
                     
                 case 'tarih':
@@ -410,7 +416,6 @@
                     // Arayüzü ayarla
                     buttonContainer.style.display = 'block';
                     mapInfoContainer.style.display = 'block';
-                    // (updateLayerControl('tarih') paneli kaldırdı)
                     break;
                     
                 case 'aftzaak':
@@ -419,8 +424,6 @@
                     // Arayüzü ayarla
                     buttonContainer.style.display = 'none';
                     mapInfoContainer.style.display = 'none';
-                    
-                    // *** GÜNCELLENDİ: DOM manipülasyonu (row.style.display) kaldırıldı
                     
                     // Aftzaak konumlarını varsayılan olarak ekle
                     aftzaakLocationsLayer.addTo(map);
@@ -450,6 +453,7 @@
         
         // Sonraki (→) butonu
         if (target.id === 'btn-next') {
+            // *** DÜZELTME: Yazım hatası (İlgili { -> 1;) ***
             var newIndex = currentTarihIndex + 1;
             if (newIndex > 4) {
                 newIndex = 1; // 4'ten 1'e döngü yap
@@ -462,13 +466,11 @@
     // --- BAŞLANGIÇ AYARLARI ---
     // Sayfa yüklendiğinde varsayılan (Kıta) durumunu ayarla
     function initializeMapState() {
-        // *** YENİ: Başlangıçta 'kıta' modu için sağ paneli oluştur
+        // Başlangıçta 'kıta' modu için sağ paneli oluştur
         updateLayerControl('kıta');
         
-        // *** YENİ: Başlangıç katmanını haritaya ekle
+        // Başlangıç katmanını haritaya ekle
         locationsLayer.addTo(map);
-        
-        // *** GÜNCELLENDİ: Eski DOM satırları kaldırıldı
         
         // Diğer paneller gizli olsun
         buttonContainer.style.display = 'none';
